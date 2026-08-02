@@ -39,6 +39,14 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
 
   const handleEnhance = async () => {
     if (!newPostContent.trim() || isEnhancing) return;
+
+    // Pre-check: ensure the user has a valid session token before calling the API
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setEnhanceError('Session expired — please sign out and sign in again.');
+      return;
+    }
+
     setIsEnhancing(true);
     setEnhanceError('');
     setEnhancedPreview(null);
@@ -50,7 +58,13 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
       setEnhancedPreview(result);
     } catch (err) {
       console.error('Enhance failed:', err);
-      setEnhanceError(err.message || "Couldn't enhance right now — try again");
+      // Translate auth errors into a friendly message
+      const msg = err.message || '';
+      if (msg.includes('Access Denied') || msg.includes('No token') || msg.includes('expired')) {
+        setEnhanceError('Session expired — please sign out and sign in again.');
+      } else {
+        setEnhanceError(msg || "Couldn't enhance right now — try again");
+      }
     } finally {
       setIsEnhancing(false);
     }
@@ -357,9 +371,9 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
             <div className="p-5">
               <div className="flex items-start justify-between">
                 <div className="flex gap-3">
-                  <img src={post.author?.avatar || `https://ui-avatars.com/api/?name=Deleted+User&background=94a3b8&color=fff`} alt={post.author?.name || 'Deleted User'} className={`w-12 h-12 rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 ${post.author?.avatar && !post.author.avatar.includes('ui-avatars.com') ? 'avatar-saturate' : ''}`} />
+                  <img src={post.author?.avatar || post.authorAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author?.name || post.authorName || 'Alumni Member')}&background=94a3b8&color=fff`} alt={post.author?.name || post.authorName || 'Alumni Member'} className={`w-12 h-12 rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 ${post.author?.avatar && !post.author.avatar.includes('ui-avatars.com') ? 'avatar-saturate' : ''}`} />
                   <div>
-                    <h3 className="font-semibold text-slate-850 dark:text-white">{post.author?.name || 'Deleted User'}</h3>
+                    <h3 className="font-semibold text-slate-800 dark:text-white">{post.author?.name || post.authorName || 'Alumni Member'}</h3>
                     {post.author && (post.author.role === 'GRADUATE' || post.author.role === 'alumni') && (post.author.currentCompany || post.author.company || post.author.jobTitle || post.author.title) && (
                       <p className="text-xs text-slate-500 dark:text-slate-400">
                         {(() => {

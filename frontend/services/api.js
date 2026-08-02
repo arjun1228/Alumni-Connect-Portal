@@ -1,4 +1,4 @@
-const API_URL = 'http://127.0.0.1:5000/api';
+const API_URL = '/api';
 import { INITIAL_POSTS, INITIAL_JOBS, INITIAL_EVENTS } from '../data/mockData';
 
 // Helper to retrieve JWT from localStorage
@@ -454,7 +454,7 @@ export const registerAlumni = async (userData) => {
 export const loginUser = async (userData) => {
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
 
         const { email, password } = userData;
 
@@ -468,7 +468,7 @@ export const loginUser = async (userData) => {
 
         if (!res.ok) {
             const errJson = await res.json().catch(() => ({}));
-            const errMsg = errJson.message || 'Failed to login/register';
+            const errMsg = errJson.message || 'Failed to login';
             const authError = new Error(errMsg);
             authError.status = res.status;
             throw authError;
@@ -487,19 +487,20 @@ export const loginUser = async (userData) => {
             avatar: data.user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user.name || 'User')}&background=random`
         };
     } catch (error) {
-        if (error.status === 400 || error.status === 401 || error.status === 403) {
+        // Always surface clean HTTP errors (wrong credentials, pending approval, suspended, etc.)
+        if (error.status) {
             throw error;
         }
-        console.warn('Network error or timeout: Falling back to offline login', error);
-        await delay(500);
-
-        const stableId = `offline_${btoa(userData.email || 'user').replace(/[^a-zA-Z0-9]/g, '').slice(0, 10)}`;
-
-        return {
-            ...userData,
-            id: stableId,
-            avatar: userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.name || 'User')}&background=random`
-        };
+        // AbortError means request timed out
+        if (error.name === 'AbortError') {
+            const timeoutError = new Error('The server took too long to respond — please try again.');
+            timeoutError.status = 0;
+            throw timeoutError;
+        }
+        // TypeError means genuine network failure (offline, connection refused)
+        const networkError = new Error('Could not reach the server — please check your connection and try again.');
+        networkError.status = 0;
+        throw networkError;
     }
 };
 
@@ -540,6 +541,20 @@ export const fetchAllUsers = async () => {
     }
 };
 
+export const fetchConversations = async () => {
+    try {
+        const res = await fetch(`${API_URL}/messages/`, {
+            headers: { ...getAuthHeaders() }
+        });
+        if (!res.ok) throw new Error('Failed to fetch conversations');
+        const json = await res.json();
+        return json.data || json;
+    } catch (error) {
+        console.warn('Network error: Failed to fetch conversations', error);
+        return [];
+    }
+};
+
 export const fetchMessages = async (userId, otherUserId) => {
     try {
         const res = await fetch(`${API_URL}/messages/${userId}/${otherUserId}`, {
@@ -574,6 +589,18 @@ export const sendMessage = async (messageData) => {
     } catch (error) {
         console.warn('Network error: Sending message locally only', error);
         return { ...messageData, id: `local_${Date.now()}` };
+    }
+};
+
+export const markConversationRead = async (otherUserId) => {
+    try {
+        const res = await fetch(`${API_URL}/messages/${otherUserId}/read`, {
+            method: 'PATCH',
+            headers: { ...getAuthHeaders() }
+        });
+        if (!res.ok) return; // Silently fail — non-critical
+    } catch (error) {
+        // Non-critical — don't surface to user
     }
 };
 

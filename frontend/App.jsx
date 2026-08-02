@@ -212,15 +212,13 @@ function App() {
               />
             </Suspense>
           ) : (
-            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 theme-transition flex">
+            <div className="h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 theme-transition flex overflow-hidden">
               {/* Sidebar */}
               <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transform transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:overflow-y-auto md:translate-x-0 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="p-6">
-                  <div className="flex items-center gap-2 mb-8">
-                    <div className={`${isStudent ? 'bg-indigo-600' : 'bg-emerald-600'} text-white p-2 rounded-lg`}>
-                      <Logo className="w-6 h-6" />
-                    </div>
-                    <span className="text-xl font-bold text-slate-850 dark:text-white tracking-tight">AlumniConnect</span>
+                  <div className="flex items-center gap-2.5 mb-8">
+                    <Logo className="w-8 h-8" />
+                    <span className="text-xl font-bold text-slate-855 dark:text-white tracking-tight">AlumniConnect</span>
                   </div>
 
                   <div className="space-y-2">
@@ -236,20 +234,19 @@ function App() {
                     )}
                   </div>
 
-                  <div className="space-y-2 mt-6">
-                    <div className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider px-4 mb-2">Account</div>
-                    <NavItem view={ViewState.PROFILE} icon={UserCircle} label="My Profile" />
-                  </div>
                 </div>
 
                 <div className="absolute bottom-0 w-full p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
-                  <div className="flex items-center gap-3 mb-4">
-                    <img src={currentUser.avatar} alt="User" className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 shadow-sm" />
+                  <button
+                    onClick={() => setCurrentView(ViewState.PROFILE)}
+                    className="w-full flex items-center gap-3 mb-4 p-2 -mx-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors text-left cursor-pointer group"
+                  >
+                    <img src={currentUser.avatar} alt="User" className="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 shadow-sm group-hover:border-indigo-500 dark:group-hover:border-indigo-400 transition-colors" />
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-white truncate">{currentUser.name}</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{currentUser.title}</p>
+                      <h4 className="text-sm font-bold text-slate-800 dark:text-white truncate group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">{currentUser.name}</h4>
+                      <p className="text-xs text-slate-550 dark:text-slate-400 truncate">{currentUser.title}</p>
                     </div>
-                  </div>
+                  </button>
                   {/* Theme Toggle & Sign Out actions */}
                   <div className="flex items-center justify-between mt-2 pt-3 border-t border-slate-200/60 dark:border-slate-800">
                     <button
@@ -283,9 +280,7 @@ function App() {
               <main className="flex-1 h-screen overflow-y-auto bg-slate-50 dark:bg-slate-950 theme-transition">
                 <div className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
                   <div className="flex items-center gap-2">
-                    <div className={`${isStudent ? 'bg-indigo-600' : 'bg-emerald-600'} text-white p-1.5 rounded`}>
-                      <Logo className="w-5 h-5" />
-                    </div>
+                    <Logo className="w-7 h-7" />
                     <span className="font-bold text-slate-800 dark:text-white">AlumniConnect</span>
                   </div>
                   <div className="flex items-center gap-1">
@@ -388,23 +383,36 @@ function App() {
                           </div>
                         )}
 
-                        {/* Alumni Specific Widget: Network Stats (Mock) */}
-                        {!isStudent && (
-                          <div className="bg-emerald-600 dark:bg-emerald-700/80 rounded-xl shadow-sm p-5 text-white">
-                            <h3 className="font-bold mb-1">Your Impact</h3>
-                            <p className="text-emerald-100 dark:text-emerald-200 text-xs mb-4">This month's contributions</p>
-                            <div className="grid grid-cols-2 gap-4 text-center">
-                              <div className="bg-white/10 rounded-lg p-2">
-                                <div className="text-2xl font-bold">12</div>
-                                <div className="text-xs text-emerald-100 dark:text-emerald-250">Profile Views</div>
-                              </div>
-                              <div className="bg-white/10 rounded-lg p-2">
-                                <div className="text-2xl font-bold">3</div>
-                                <div className="text-xs text-emerald-100 dark:text-emerald-250">Mentorships</div>
+                        {/* Alumni Specific Widget: Network Stats (Dynamic) */}
+                        {!isStudent && (() => {
+                          const currentUserId = currentUser?.id || currentUser?._id;
+                          const myJobsCount = jobs.filter(j => {
+                            const postedById = j.postedBy?.id || j.postedBy?._id || j.postedBy;
+                            return postedById && postedById.toString() === currentUserId?.toString();
+                          }).length;
+
+                          const myEventsCount = events.filter(e => {
+                            const organizerId = e.organizer?.id || e.organizer?._id || e.organizer || e.postedBy?.id || e.postedBy?._id;
+                            return organizerId && organizerId.toString() === currentUserId?.toString();
+                          }).length;
+
+                          return (
+                            <div className="bg-emerald-600 dark:bg-emerald-700/80 rounded-xl shadow-sm p-5 text-white">
+                              <h3 className="font-bold mb-1">Your Impact</h3>
+                              <p className="text-emerald-100 dark:text-emerald-205 text-xs mb-4 font-medium">Your platform contributions</p>
+                              <div className="grid grid-cols-2 gap-4 text-center">
+                                <div className="bg-white/10 rounded-lg p-2.5">
+                                  <div className="text-2xl font-black">{myJobsCount}</div>
+                                  <div className="text-[10px] text-emerald-100 dark:text-emerald-250 font-bold uppercase tracking-wider mt-1">Jobs Posted</div>
+                                </div>
+                                <div className="bg-white/10 rounded-lg p-2.5">
+                                  <div className="text-2xl font-black">{myEventsCount}</div>
+                                  <div className="text-[10px] text-emerald-100 dark:text-emerald-250 font-bold uppercase tracking-wider mt-1">Events Hosted</div>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          );
+                        })()}
                       </div>
                     )}
                   </div>
@@ -425,7 +433,7 @@ function App() {
         
         {/* GOOGLE FIRST-LOGIN ROLE SELECTION MODAL */}
         {currentUser && currentUser.needsRoleSelection && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-9999 flex items-center justify-center p-4 animate-in fade-in duration-300">
             <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl p-8 text-center animate-in zoom-in duration-200">
               <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-955/30 rounded-full flex items-center justify-center mx-auto mb-6 text-indigo-600 dark:text-indigo-400">
                 <Sparkles className="w-8 h-8 animate-pulse" />

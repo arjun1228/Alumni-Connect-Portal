@@ -98,13 +98,13 @@ export const PostView = ({ currentUser }) => {
             <div className="flex items-start justify-between">
               <div className="flex gap-3">
                 <img
-                  src={post.author?.avatar || `https://ui-avatars.com/api/?name=Deleted+User&background=94a3b8&color=fff`}
-                  alt={post.author?.name || 'Deleted User'}
+                  src={post.author?.avatar || post.authorAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author?.name || post.authorName || 'Alumni Member')}&background=94a3b8&color=fff`}
+                  alt={post.author?.name || post.authorName || 'Alumni Member'}
                   className={`w-12 h-12 rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 ${post.author?.avatar && !post.author.avatar.includes('ui-avatars.com') ? 'avatar-saturate' : ''}`}
                 />
                 <div>
-                  <h3 className="font-semibold text-slate-900 dark:text-white">{post.author?.name || 'Deleted User'}</h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-355">{post.author ? post.author.title : 'User deleted'}</p>
+                  <h3 className="font-semibold text-slate-900 dark:text-white">{post.author?.name || post.authorName || 'Alumni Member'}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-355">{post.author ? (post.author.jobTitle || post.author.title || post.author.role) : 'Alumni Member'}</p>
                   <p className="text-xs text-slate-400 dark:text-slate-500">
                     {post.createdAt ? new Date(post.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : post.timestamp}
                   </p>
@@ -158,10 +158,10 @@ export const PostView = ({ currentUser }) => {
               {post.commentsList && post.commentsList.length > 0 ? (
                 post.commentsList.map(comment => (
                   <div key={comment.id || comment._id} className="flex gap-3">
-                    <img src={comment.authorAvatar || `https://ui-avatars.com/api/?name=Deleted+User&background=94a3b8&color=fff`} className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-800 object-cover bg-slate-100" alt={comment.authorName || 'Deleted User'} />
+                    <img src={comment.authorAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.authorName || 'Alumni Member')}&background=94a3b8&color=fff`} className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-800 object-cover bg-slate-100" alt={comment.authorName || 'Alumni Member'} />
                     <div className="bg-white dark:bg-slate-900 p-3 rounded-xl rounded-tl-none shadow-sm border border-slate-150 dark:border-slate-800 flex-1 text-slate-800 dark:text-slate-100">
                       <div className="flex justify-between items-baseline mb-1">
-                        <span className="font-semibold text-xs text-slate-805 dark:text-white">{comment.authorName || 'Deleted User'}</span>
+                        <span className="font-semibold text-xs text-slate-800 dark:text-white">{comment.authorName || 'Alumni Member'}</span>
                         <span className="text-[10px] text-slate-400 dark:text-slate-500">{comment.timestamp}</span>
                       </div>
                       <p className="text-sm text-slate-700 dark:text-slate-300">{comment.content || comment.text}</p>

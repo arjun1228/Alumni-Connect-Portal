@@ -409,7 +409,7 @@ export const AuthScreen = ({ onLogin, onBack }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 theme-transition">
-      <div className="max-w-5xl w-full grid md:grid-cols-2 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden min-h-[600px] border border-transparent dark:border-slate-850 theme-transition">
+      <div className="max-w-5xl w-full grid md:grid-cols-2 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden min-h-150 border border-transparent dark:border-slate-850 theme-transition">
 
         {/* Left Side - Form */}
         <div className="p-8 md:p-12 flex flex-col justify-center order-2 md:order-1">
@@ -469,6 +469,16 @@ export const AuthScreen = ({ onLogin, onBack }) => {
                     className="w-full px-4 py-3 rounded-xl form-input-custom"
                     placeholder="e.g. Alex Johnson"
                   />
+                </div>
+              </div>
+            )}
+
+            {/* Email format hint — shown prominently above email field on Login tab only */}
+            {view === 'LOGIN' && activeTab !== 'admin' && activeTab !== 'ADMIN' && (
+              <div className="flex items-start gap-3 px-4 py-3 bg-indigo-50 dark:bg-indigo-950/30 border-l-4 border-indigo-400 dark:border-indigo-500 rounded-r-xl animate-in fade-in duration-200">
+                <Info className="h-4 w-4 text-indigo-500 dark:text-indigo-400 shrink-0 mt-0.5" />
+                <div className="text-xs text-indigo-800 dark:text-indigo-200 font-medium leading-relaxed">
+                  <span className="font-bold">Student tab:</span> use a <span className="font-bold">.edu</span> email address &nbsp;·&nbsp; <span className="font-bold">Alumni tab:</span> use your standard email
                 </div>
               </div>
             )}
@@ -620,15 +630,7 @@ export const AuthScreen = ({ onLogin, onBack }) => {
             </p>
           </div>
 
-          {view === 'LOGIN' && (
-            <div className="mt-8 p-4 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs text-slate-500 dark:text-slate-450 border border-slate-100 dark:border-slate-850 flex items-start gap-2.5">
-              <Info className="h-4 w-4 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
-              <div className="flex-1 flex justify-between">
-                <span>Use <strong>.edu</strong> for Student tab.</span>
-                <span>Use standard email for Alumni tab.</span>
-              </div>
-            </div>
-          )}
+          {/* Removed from bottom — hint is now shown prominently above email field */}
         </div>
 
         {/* Right Side - Interactive Selection */}

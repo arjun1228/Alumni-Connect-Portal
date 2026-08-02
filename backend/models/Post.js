@@ -9,6 +9,9 @@ const commentSchema = new mongoose.Schema({
 
 const postSchema = new mongoose.Schema({
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    authorName: String,
+    authorRole: String,
+    authorAvatar: String,
     content: { type: String, required: true },
     category: { type: String, enum: ['Advice', 'Achievement', 'General'], required: true },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],

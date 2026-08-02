@@ -82,6 +82,9 @@ export const createPost = async (req, res, next) => {
 
         const postData = {
             author: userId,
+            authorName: req.user.name,
+            authorRole: req.user.role,
+            authorAvatar: req.user.avatar || req.user.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(req.user.name)}`,
             content,
             category,
             likes: [],

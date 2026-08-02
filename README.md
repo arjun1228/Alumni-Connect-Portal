@@ -55,6 +55,21 @@ JWT-based sessions with role claims. Middleware enforces authentication (`authen
 ### 📁 Media Upload Support
 Image and file uploads handled via a dedicated upload service (`mediaUpload.js`), with files stored in the `backend/uploads/` directory.
 
+### 🪄 AI-Powered Content Enhancement
+Integrates a "Groq AI Assist" text enhancer directly in the community post composer to refine drafts and elevate content quality instantly.
+
+### 🔗 Shareable Single-Post Routing
+Direct link sharing and custom detail views (`PostView`) for community posts to enhance searchability and networking opportunities.
+
+### 🔔 Interactive Toast Notifications
+Fluent global toast notifications for key events like authentication status changes, post interactions, job operations, calendar additions, and event registrations.
+
+### 📝 Enhanced Profiles & Mentorship Fields
+Allows student users to manage detailed academic details and alumni to display mentoring domains/topics directly in their profiles.
+
+### 💬 Direct Admin Communication
+Enables administrators to message platform users directly from the Admin Dashboard to support moderation and facilitate platform updates.
+
 ---
 
 ## 👥 Roles & Permissions Matrix

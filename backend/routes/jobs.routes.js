@@ -9,8 +9,12 @@ router.get('/', getJobs);
 router.post('/semantic-search', authenticate, semanticSearchJobs);
 router.get('/:id', getJobById);
 
-// Create Job: Protected, restricted to approved alumni only
-router.post('/', authenticate, authorize('alumni'), alumniApproved, createJob);
+// Create Job: Protected, restricted to approved alumni or admin
+router.post('/', authenticate, authorize('alumni', 'admin'), (req, res, next) => {
+    // Skip alumni-approval check if the poster is an admin
+    if (req.user.role === 'admin') return next();
+    return alumniApproved(req, res, next);
+}, createJob);
 
 // Apply to Job: Protected, open to students/alumni
 router.post('/:id/apply', authenticate, applyJob);

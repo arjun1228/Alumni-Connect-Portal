@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { School, Moon, Sun, MessageSquare, Briefcase, Calendar, Sparkles, ArrowRight, GraduationCap, Users } from 'lucide-react';
 import { ScrollReveal } from './ScrollReveal';
 import { Logo } from './Logo';
 
 export const LandingPage = ({ onGetStarted, theme, toggleTheme }) => {
+  const [openFaq, setOpenFaq] = useState(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  // Auto-run slide animation (video format preview)
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % 4);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, []);
+
   const scrollToFeatures = () => {
     document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -14,9 +25,7 @@ export const LandingPage = ({ onGetStarted, theme, toggleTheme }) => {
       <header className="sticky top-0 z-50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-900 theme-transition">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="bg-indigo-600 dark:bg-indigo-600 text-white p-2 rounded-xl shadow-md">
-              <Logo className="w-5 h-5" />
-            </div>
+            <Logo className="w-9 h-9" />
             <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">AlumniConnect</span>
           </div>
 
@@ -46,50 +55,219 @@ export const LandingPage = ({ onGetStarted, theme, toggleTheme }) => {
 
       {/* Hero Section */}
       <main className="flex-1">
-        <section className="relative overflow-hidden pt-20 pb-16 sm:pt-24 sm:pb-20 lg:pt-32 lg:pb-28">
+        <section className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-20 lg:pt-24 lg:pb-24">
           {/* Glowing blur effects for background */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-400/10 dark:bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute top-1/3 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-emerald-400/10 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-indigo-400/10 dark:bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-1/3 left-1/4 -translate-x-1/2 -translate-y-1/2 w-100 h-100 bg-emerald-400/10 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 glass-badge text-indigo-700 dark:text-indigo-400 rounded-full text-xs font-semibold uppercase tracking-wider mb-6">
-                <GraduationCap className="w-3.5 h-3.5" /> University Network
-              </span>
-            </ScrollReveal>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center text-left">
+              {/* Left Column - Copy & Actions */}
+              <div className="lg:col-span-5 space-y-6">
+                <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 glass-badge text-indigo-705 dark:text-indigo-400 rounded-full text-xs font-semibold uppercase tracking-wider">
+                    <GraduationCap className="w-3.5 h-3.5" /> University Network
+                  </span>
+                </ScrollReveal>
 
-            <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white leading-tight tracking-tight">
-                Bridge the Gap Between <br className="hidden sm:inline" />
-                <span className="bg-linear-to-r from-indigo-600 via-indigo-500 to-emerald-500 bg-clip-text text-transparent hero-gradient-hover cursor-pointer">Campus and Career</span>
-              </h1>
-            </ScrollReveal>
+                <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+                  <h1 className="text-4xl sm:text-5xl lg:text-5xl xl:text-6xl font-black text-slate-900 dark:text-white leading-tight tracking-tight">
+                    Bridge the Gap Between <br />
+                    <span className="bg-linear-to-r from-indigo-600 via-indigo-500 to-emerald-500 bg-clip-text text-transparent hero-gradient-hover cursor-pointer">Campus and Career</span>
+                  </h1>
+                </ScrollReveal>
 
-            <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-              <p className="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
-                Connect students with alumni mentors, discover exclusive job openings, register for networking events, and power up your professional journey with our AI Career Mentor.
-              </p>
-            </ScrollReveal>
+                <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+                  <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Connect students with alumni mentors, discover exclusive job openings, register for networking events, and power up your professional journey with our AI Career Mentor.
+                  </p>
+                </ScrollReveal>
 
-            <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
-              <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button
-                  onClick={onGetStarted}
-                  className="w-full sm:w-auto px-8 py-4 btn-primary-premium text-white font-bold rounded-2xl cursor-pointer flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  Get Started
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button
-                  onClick={scrollToFeatures}
-                  className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold rounded-2xl border border-slate-200 dark:border-slate-800 transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  Explore Features
-                </button>
+                <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+                  <div className="flex flex-col sm:flex-row gap-4 items-center">
+                    <button
+                      onClick={onGetStarted}
+                      className="w-full sm:w-auto px-8 py-4 btn-primary-premium text-white font-bold rounded-2xl cursor-pointer flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      Get Started Free
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <button
+                      onClick={scrollToFeatures}
+                      className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold rounded-2xl border border-slate-200 dark:border-slate-800 transition-all cursor-pointer shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      Explore Features
+                    </button>
+                  </div>
+                </ScrollReveal>
               </div>
-            </ScrollReveal>
+
+              {/* Right Column - Premium Interactive Showcase Video Format Mockup */}
+              <div className="lg:col-span-7">
+                <ScrollReveal animationClass="animate-in fade-in zoom-in duration-1000 delay-200">
+                  <div className="relative group rounded-3xl p-2 bg-linear-to-tr from-slate-200/50 to-white/50 dark:from-slate-900/50 dark:to-slate-800/50 border border-slate-200/60 dark:border-slate-800 shadow-2xl overflow-hidden backdrop-blur-md">
+                    {/* Glowing highlight ring */}
+                    <div className="absolute -inset-px bg-linear-to-r from-indigo-500 to-emerald-500 rounded-3xl opacity-20 group-hover:opacity-30 transition duration-500 blur-xs"></div>
+                    
+                    {/* Browser Chrome Header Mockup */}
+                    <div className="flex items-center justify-between px-4 py-3 bg-slate-100/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-800/50 rounded-t-2xl">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-3 h-3 rounded-full bg-red-400"></span>
+                        <span className="w-3 h-3 rounded-full bg-yellow-400"></span>
+                        <span className="w-3 h-3 rounded-full bg-green-400"></span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">Live System Demo</span>
+                      </div>
+                      <div className="w-6 h-3.5"></div>
+                    </div>
+
+                    {/* Screenshot Frame - Aspect 16:9 with Slides */}
+                    <div className="relative overflow-hidden rounded-b-2xl aspect-video bg-slate-950 flex flex-col justify-between p-6">
+                      
+                      {/* Interactive slide renderer */}
+                      {activeSlide === 0 && (
+                        <div className="flex-1 flex flex-col justify-between text-left select-none animate-in fade-in duration-300">
+                          <div>
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded text-[10px] font-bold uppercase">Student view</span>
+                              <span className="text-[11px] text-slate-400 font-semibold">Applying for Jobs</span>
+                            </div>
+                            <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-bold text-sm text-slate-100">Frontend Developer</h3>
+                                  <p className="text-[11px] text-slate-455">TechCorp • Mountain View, CA</p>
+                                </div>
+                                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/40 border border-emerald-900/50 px-2 py-0.5 rounded">Apply Instant</span>
+                              </div>
+                              <p className="text-[11px] text-slate-400 leading-relaxed">Collaborate with modern design systems to build responsive interfaces. Required: React, Next.js, and CSS.</p>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center pt-2">
+                            <div className="text-[10px] text-slate-500">1. Click "Apply Now" with profile</div>
+                            <div className="relative">
+                              {/* Simulated Cursor */}
+                              <div className="absolute -top-1 -left-2 w-4 h-4 text-sm pointer-events-none animate-bounce z-20">🖱️</div>
+                              <button className="px-4 py-2 bg-indigo-650 text-white text-xs font-bold rounded-lg border border-indigo-500/50 hover:bg-indigo-700 transition-colors">
+                                Apply Now 🚀
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {activeSlide === 1 && (
+                        <div className="flex-1 flex flex-col justify-between text-left select-none animate-in fade-in duration-300">
+                          <div>
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded text-[10px] font-bold uppercase">Student view</span>
+                              <span className="text-[11px] text-slate-400 font-semibold">Register for Events</span>
+                            </div>
+                            <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="font-bold text-sm text-slate-100">Alumni Career Panel & Mixer</h3>
+                                  <p className="text-[11px] text-slate-455">Tomorrow • 6:00 PM • Campus Center</p>
+                                </div>
+                                <span className="text-[10px] text-indigo-400 font-bold bg-indigo-950/40 border border-indigo-900/50 px-2 py-0.5 rounded">Mixer</span>
+                              </div>
+                              <p className="text-[11px] text-slate-400 leading-relaxed">Meet verified graduates working at top companies. Ask questions and build professional relations.</p>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center pt-2">
+                            <div className="text-[10px] text-slate-500">2. Confirm registration details</div>
+                            <div className="relative">
+                              <div className="absolute -top-1 -left-2 w-4 h-4 text-sm pointer-events-none animate-bounce z-20">🖱️</div>
+                              <button className="px-4 py-2 bg-emerald-650 text-white text-xs font-bold rounded-lg border border-emerald-500/50 hover:bg-emerald-700 transition-colors">
+                                RSVP Registered ✅
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {activeSlide === 2 && (
+                        <div className="flex-1 flex flex-col justify-between text-left select-none animate-in fade-in duration-300">
+                          <div>
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 rounded text-[10px] font-bold uppercase">Student view</span>
+                              <span className="text-[11px] text-slate-400 font-semibold">Message Verified Alumni</span>
+                            </div>
+                            <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-2 h-30 overflow-y-auto scrollbar-hide">
+                              <div className="text-xs text-slate-400 bg-slate-950/40 p-2 rounded-lg mb-2">
+                                <span className="font-bold text-indigo-400">Student:</span> "Hi Sarah! I saw your PM post. I'd love to learn about your journey."
+                              </div>
+                              <div className="text-xs text-slate-400 bg-slate-950/40 p-2 rounded-lg animate-pulse">
+                                <span className="font-bold text-emerald-400">Sarah PM (Alumni):</span> "Hi there! Happy to help. Let's schedule a chat."
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center pt-2">
+                            <div className="text-[10px] text-slate-505">3. Live Chat with Mentor</div>
+                            <button className="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-lg border border-slate-700 hover:bg-slate-700">
+                              Send Message ✉️
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {activeSlide === 3 && (
+                        <div className="flex-1 flex flex-col justify-between text-left select-none animate-in fade-in duration-300">
+                          <div>
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded text-[10px] font-bold uppercase">Alumni view</span>
+                              <span className="text-[11px] text-slate-400 font-semibold">Post Opportunities & Events</span>
+                            </div>
+                            <div className="bg-slate-900 p-4 rounded-xl border border-slate-800 space-y-3">
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                  <label className="text-slate-500 text-[10px]">Position Title</label>
+                                  <div className="bg-slate-950 p-2 rounded border border-slate-800 text-slate-300">UX Architect</div>
+                                </div>
+                                <div>
+                                  <label className="text-slate-500 text-[10px]">Company Name</label>
+                                  <div className="bg-slate-950 p-2 rounded border border-slate-800 text-slate-300">Stripe</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center pt-2">
+                            <div className="text-[10px] text-slate-505">4. Alumni creating job listings</div>
+                            <div className="relative">
+                              <div className="absolute -top-1 -left-2 w-4 h-4 text-sm pointer-events-none animate-bounce z-20">🖱️</div>
+                              <button className="px-4 py-2 bg-indigo-650 text-white text-xs font-bold rounded-lg border border-indigo-500/50 hover:bg-indigo-700">
+                                Publish Listing 🚀
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Slide Indicator Bar */}
+                      <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-900">
+                        <div className="flex gap-2">
+                          {[0, 1, 2, 3].map((idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setActiveSlide(idx)}
+                              className={`w-2.5 h-2.5 rounded-full transition-colors cursor-pointer ${activeSlide === idx ? 'bg-indigo-500' : 'bg-slate-800 hover:bg-slate-700'}`}
+                              aria-label={`Showcase slide ${idx + 1}`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-[10px] text-slate-500">Auto-cycling preview</span>
+                      </div>
+
+                    </div>
+                  </div>
+                </ScrollReveal>
+              </div>
+            </div>
           </div>
         </section>
+
 
         {/* Feature Highlights Grid */}
         <section id="features-section" className="py-20 bg-white dark:bg-slate-900/40 border-y border-slate-200/80 dark:border-slate-900 theme-transition relative">
@@ -174,13 +352,98 @@ export const LandingPage = ({ onGetStarted, theme, toggleTheme }) => {
             </div>
           </div>
         </section>
+
+        {/* Social Proof/Stats Section */}
+        <section className="py-16 bg-slate-100 dark:bg-slate-950/60 border-b border-slate-200/80 dark:border-slate-900 theme-transition">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              {[
+                { number: "500+", label: "Active Students", desc: "Building careers" },
+                { number: "200+", label: "Alumni Mentors", desc: "Providing guidance" },
+                { number: "150+", label: "Jobs Posted", desc: "Exclusive opportunities" },
+                { number: "50+", label: "Events Hosted", desc: "Networking & growth" },
+              ].map((stat, i) => (
+                <ScrollReveal key={i} style={{ animationDelay: `${i * 100}ms` }}>
+                  <div className="p-6 rounded-2xl glass-card relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-linear-to-r from-indigo-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <p className="text-4xl sm:text-5xl font-black bg-linear-to-r from-indigo-600 to-emerald-500 bg-clip-text text-transparent">{stat.number}</p>
+                    <p className="text-slate-905 dark:text-white font-bold mt-2 text-sm sm:text-base">{stat.label}</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">{stat.desc}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-20 bg-white dark:bg-slate-900/40 theme-transition">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <ScrollReveal>
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                  Frequently Asked Questions
+                </h2>
+              </ScrollReveal>
+              <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-2 duration-700 delay-100">
+                <p className="mt-4 text-slate-500 dark:text-slate-400">
+                  Got questions? We've got answers.
+                </p>
+              </ScrollReveal>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                {
+                  q: "Is this only for my university?",
+                  a: "Yes, AlumniConnect is a closed network designed specifically for students, alumni, and administrators of our university to ensure secure and highly relevant professional interactions."
+                },
+                {
+                  q: "How does the AI Career Mentor work?",
+                  a: "The AI Career Mentor uses state-of-the-art Large Language Models (LLMs) to analyze your resume, mock interview answers, and provide feedback on industrial skill gaps in real-time."
+                },
+                {
+                  q: "How do I get verified as an alumni?",
+                  a: "When signing up, you can submit your company credentials or reference token. Platform administrators review and approve pending registrations to maintain community standards."
+                },
+                {
+                  q: "Are the jobs posted here exclusive?",
+                  a: "Many listings are posted directly by alumni who are hiring for their respective teams, providing students with direct access to internal referrals and opportunities."
+                }
+              ].map((faq, i) => {
+                const isOpen = openFaq === i;
+                return (
+                  <ScrollReveal key={i} style={{ animationDelay: `${i * 100}ms` }}>
+                    <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-slate-50/50 dark:bg-slate-950/20">
+                      <button
+                        type="button"
+                        onClick={() => setOpenFaq(isOpen ? null : i)}
+                        className="w-full flex justify-between items-center p-5 text-left font-bold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900/50 transition-colors cursor-pointer"
+                      >
+                        <span>{faq.q}</span>
+                        <span className={`text-indigo-600 dark:text-indigo-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+                          ▼
+                        </span>
+                      </button>
+                      {isOpen && (
+                        <div className="p-5 pt-0 text-sm text-slate-650 dark:text-slate-400 leading-relaxed border-t border-slate-200/50 dark:border-slate-800/50 animate-in fade-in slide-in-from-top-1">
+                          {faq.a}
+                        </div>
+                      )}
+                    </div>
+                  </ScrollReveal>
+                );
+              })}
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
       <footer className="border-t border-slate-200/80 dark:border-slate-900 bg-white dark:bg-slate-950 py-8 theme-transition mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-400 text-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-405 text-sm">
           <div className="flex items-center gap-2">
-            <Logo className="w-4 h-4 text-indigo-500" />
+            <Logo className="w-6 h-6" />
             <span className="font-bold text-slate-800 dark:text-white">AlumniConnect</span>
           </div>
           <p>© {new Date().getFullYear()} AlumniConnect Portal. All rights reserved.</p>
@@ -189,3 +452,4 @@ export const LandingPage = ({ onGetStarted, theme, toggleTheme }) => {
     </div>
   );
 };
+;

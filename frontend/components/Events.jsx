@@ -298,7 +298,7 @@ export const Events = ({ events, setEvents, currentUser }) => {
                   >
                      <div className="h-40 overflow-hidden relative">
                         <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ease-out" />
-                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                         <div className="absolute top-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-indigo-700 dark:text-indigo-400">
                            {event.type}
                         </div>
@@ -341,8 +341,8 @@ export const Events = ({ events, setEvents, currentUser }) => {
 
                         <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                            <div className="flex items-center gap-2">
-                              <img src={event.organizer?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.organizer?.name || 'Deleted User')}`} className="w-6 h-6 rounded-full border border-slate-100 dark:border-slate-850" alt="" />
-                              <span className="text-xs text-slate-600 dark:text-slate-400">By {event.organizer?.name || 'Deleted User'}</span>
+                              <img src={event.organizer?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.organizer?.name || 'Alumni Member')}`} className="w-6 h-6 rounded-full border border-slate-100 dark:border-slate-850" alt="" />
+                              <span className="text-xs text-slate-600 dark:text-slate-400">By {event.organizer?.name || 'Alumni Member'}</span>
                            </div>
                            <div className="flex items-center gap-1 text-xs font-medium text-slate-500 dark:text-slate-350 bg-slate-100 dark:bg-slate-950 px-2 py-1 rounded-full">
                               <Users className="w-3 h-3 text-slate-455" /> {event.attendees} going

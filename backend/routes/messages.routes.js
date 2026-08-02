@@ -4,7 +4,8 @@ import {
     getChatHistory, 
     sendMessage, 
     getMessagesBetweenUsers, 
-    sendMessageLegacy 
+    sendMessageLegacy,
+    markMessagesRead
 } from '../controllers/messages.controller.js';
 import { authenticate } from '../middleware/authenticate.js';
 
@@ -41,6 +42,7 @@ router.post('/', authenticate, (req, res, next) => {
 // Protected standard endpoints
 router.use(authenticate);
 router.get('/', getConversations);
+router.patch('/:userId/read', markMessagesRead);
 router.get('/:userId', getChatHistory);
 router.post('/:userId', sendMessage);
 

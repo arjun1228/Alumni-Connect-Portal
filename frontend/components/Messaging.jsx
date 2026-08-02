@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { UserRole } from '../types';
 import { Search, MessageCircle, Send, ArrowLeft, MoreVertical, UserCircle, X, CheckCheck, Paperclip, ExternalLink, Download, Shield } from 'lucide-react';
 import { Profile } from './Profile';
 import { SearchInput } from './SearchInput';
-import { fetchAllUsers, fetchMessages, sendMessage } from '../services/api';
+import { fetchAllUsers, fetchMessages, sendMessage, fetchConversations, markConversationRead } from '../services/api';
 
 // Mock Directory Data (Fallback)
 const MOCK_DIRECTORY = [
@@ -54,6 +54,8 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
   // MESSAGES STATE (Backend)
   const [messages, setMessages] = useState([]);
   const [directory, setDirectory] = useState([]);
+  // Conversations with unread status from backend
+  const [conversations, setConversations] = useState([]);
 
   // Feature States
   const [blockedUsers, setBlockedUsers] = useState([]);
@@ -62,7 +64,7 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
   const [showAttachmentMenu, setShowAttachmentMenu] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Fetch Directory on Mount
+  // Fetch Directory and Conversations on Mount
   useEffect(() => {
     const loadDirectory = async () => {
       try {
@@ -75,10 +77,20 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
         setDirectory(MOCK_DIRECTORY); // Fallback
       }
     };
+    const loadConversations = async () => {
+      try {
+        const convos = await fetchConversations();
+        setConversations(convos);
+      } catch (error) {
+        console.error("Failed to load conversations", error);
+      }
+    };
     loadDirectory();
+    loadConversations();
   }, [currentUser.id]);
 
   // Fetch Messages when a user is selected (and poll for new ones)
+  // Also re-fetch conversations on the same interval so the list re-sorts live
   useEffect(() => {
     let intervalId;
 
@@ -92,13 +104,36 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
       }
     };
 
+    const loadConversationsLive = async () => {
+      try {
+        const convos = await fetchConversations();
+        setConversations(convos);
+      } catch (_) {}
+    };
+
     if (selectedUser) {
       loadMessages(); // Initial load
-      intervalId = setInterval(loadMessages, 3000); // Poll every 3 seconds
+      intervalId = setInterval(async () => {
+        await loadMessages();
+        await loadConversationsLive(); // Re-sort list as new messages arrive
+      }, 3000);
     }
 
     return () => clearInterval(intervalId);
   }, [selectedUser, currentUser.id]);
+
+  // Handler: select user, mark as read, clear unread badge
+  const handleSelectUser = useCallback(async (user) => {
+    setSelectedUser(user);
+    const otherId = user.id || user._id;
+    // Optimistically clear unread badge in UI
+    setConversations(prev => prev.map(c => {
+      const cId = c.user?.id || c.user?._id;
+      return cId === otherId ? { ...c, hasUnread: false, unreadCount: 0 } : c;
+    }));
+    // Persist to backend
+    try { await markConversationRead(otherId); } catch (_) {}
+  }, []);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -109,13 +144,40 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
 
   const isStudent = currentUser.role === UserRole.UNDERGRADUATE;
 
-  // Filtered Directory based on search
+  // Filtered Directory based on search, sorted by most recent conversation activity
   const filteredDirectory = useMemo(() => {
-    return directory.filter(u =>
-    (u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (u.title && u.title.toLowerCase().includes(searchTerm.toLowerCase())))
+    const matched = directory.filter(u =>
+      (u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (u.title && u.title.toLowerCase().includes(searchTerm.toLowerCase())))
     );
-  }, [directory, searchTerm]);
+
+    // Build a lookup: userId -> lastMessage timestamp from conversations data
+    const recentActivity = {};
+    for (const convo of conversations) {
+      const cId = convo.user?.id || convo.user?._id;
+      if (cId && convo.lastMessage?.createdAt) {
+        recentActivity[cId] = new Date(convo.lastMessage.createdAt).getTime();
+      }
+    }
+
+    // Sort: unread first, then by most recent message, then alphabetically
+    return [...matched].sort((a, b) => {
+      const aId = a.id || a._id;
+      const bId = b.id || b._id;
+      const aConvo = conversations.find(c => (c.user?.id || c.user?._id) === aId);
+      const bConvo = conversations.find(c => (c.user?.id || c.user?._id) === bId);
+
+      const aUnread = aConvo?.hasUnread ? 1 : 0;
+      const bUnread = bConvo?.hasUnread ? 1 : 0;
+      if (bUnread !== aUnread) return bUnread - aUnread; // Unread first
+
+      const aTime = recentActivity[aId] || 0;
+      const bTime = recentActivity[bId] || 0;
+      if (bTime !== aTime) return bTime - aTime; // Most recent first
+
+      return a.name.localeCompare(b.name); // Alphabetical fallback
+    });
+  }, [directory, searchTerm, conversations]);
 
   // SEND MESSAGE LOGIC
   const handleSendMessage = async (e) => {
@@ -139,6 +201,17 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
     setMessageInput('');
     setAttachment(null);
 
+    // Optimistically bubble this conversation to the top of the list
+    setConversations(prev => {
+      const otherId = selectedUser.id || selectedUser._id;
+      const existingIdx = prev.findIndex(c => (c.user?.id || c.user?._id) === otherId);
+      const updatedConvo = existingIdx >= 0
+        ? { ...prev[existingIdx], lastMessage: { text: newMessage.text, createdAt: newMessage.timestamp, sender: currentUser.id || currentUser._id } }
+        : { user: selectedUser, lastMessage: { text: newMessage.text, createdAt: newMessage.timestamp, sender: currentUser.id || currentUser._id }, hasUnread: false, unreadCount: 0 };
+      const filtered = prev.filter((_, i) => i !== existingIdx);
+      return [updatedConvo, ...filtered]; // Move to top
+    });
+
     try {
       await sendMessage({
         senderId: currentUser.id || currentUser._id,
@@ -148,6 +221,9 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
         attachmentName: newMessage.attachmentName,
         attachmentType: newMessage.attachmentType
       });
+      // Re-fetch conversations from server to confirm canonical sort order
+      const convos = await fetchConversations();
+      setConversations(convos);
     } catch (error) {
       console.error("Failed to send message", error);
     }
@@ -187,30 +263,54 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
         <div className="flex-1 overflow-y-auto">
           {filteredDirectory.length > 0 ? (
             filteredDirectory.map(user => {
-              const lastMsg = getLastMessage(user.id || user._id);
+              const userId = user.id || user._id;
+              const convo = conversations.find(c => {
+                const cId = c.user?.id || c.user?._id;
+                return cId === userId;
+              });
+              const hasUnread = convo?.hasUnread || false;
+              const unreadCount = convo?.unreadCount || 0;
               return (
                 <div
-                  key={user.id || user._id}
-                  onClick={() => setSelectedUser(user)}
-                  className={`p-4 flex items-center gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-50 dark:border-slate-800/30 ${selectedUser?.id === user.id ? 'bg-indigo-50 dark:bg-indigo-950/20 border-l-4 border-l-indigo-600' : ''}`}
+                  key={userId}
+                  onClick={() => handleSelectUser(user)}
+                  className={`p-4 flex items-center gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-50 dark:border-slate-800/30 ${
+                    selectedUser?.id === user.id
+                      ? 'bg-indigo-50 dark:bg-indigo-950/20 border-l-4 border-l-indigo-600'
+                      : hasUnread
+                      ? 'bg-indigo-50/40 dark:bg-indigo-950/10 border-l-4 border-l-indigo-400'
+                      : ''
+                  }`}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">{user.name}</h3>
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${user.role === UserRole.GRADUATE ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-450' : 'bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400'
-                          }`}>
+                        <h3 className={`truncate ${hasUnread ? 'font-bold text-slate-900 dark:text-white' : 'font-semibold text-slate-900 dark:text-slate-100'}`}>{user.name}</h3>
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${
+                          user.role === UserRole.GRADUATE
+                            ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-450'
+                            : 'bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400'
+                        }`}>
                           {user.role === UserRole.GRADUATE ? 'Alumni' : 'Student'}
                         </span>
                       </div>
-                      {lastMsg && (
-                        <span className="text-[10px] text-slate-400 dark:text-slate-550">
-                          {new Date(lastMsg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5">
+                        {hasUnread && (
+                          <span className="flex items-center justify-center w-5 h-5 bg-indigo-600 text-white text-[10px] font-bold rounded-full shrink-0">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <p className={`text-xs truncate ${lastMsg && !lastMsg.read && lastMsg.receiverId === currentUser.id ? 'font-bold text-slate-850 dark:text-slate-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                      {lastMsg ? ((lastMsg.senderId === currentUser.id || lastMsg.senderId === currentUser._id) ? `You: ${lastMsg.text}` : lastMsg.text) : user.title}
+                    <p className={`text-xs truncate ${
+                      hasUnread
+                        ? 'font-semibold text-slate-800 dark:text-slate-100'
+                        : 'text-slate-500 dark:text-slate-400'
+                    }`}>
+                      {convo?.lastMessage
+                        ? ((convo.lastMessage.sender === (currentUser.id || currentUser._id)) ? `You: ${convo.lastMessage.text}` : convo.lastMessage.text)
+                        : user.title
+                      }
                     </p>
                   </div>
                 </div>
@@ -308,12 +408,13 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
                 activeConversation.map(msg => {
                   const isMe = msg.senderId === currentUser.id || msg.senderId === currentUser._id;
                   return (
-                    <div key={msg.id || msg._id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[75%] group relative ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>
-                        <div className={`px-4 py-2.5 rounded-2xl text-sm shadow-sm ${isMe
-                          ? 'bg-indigo-600 text-white rounded-br-none'
-                          : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-105 border border-slate-200 dark:border-slate-850 rounded-bl-none'
-                          }`}>
+                    <div key={msg.id || msg._id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} items-end gap-2`}>
+                      <div className={`max-w-[75%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                        <div className={`px-4 py-2.5 rounded-2xl text-sm shadow-sm wrap-break-word leading-relaxed ${
+                          isMe
+                            ? 'bg-indigo-600 text-white rounded-br-sm'
+                            : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 rounded-bl-sm'
+                        }`} style={{ wordBreak: 'break-word', minWidth: '2.5rem' }}>
                           {msg.text}
                         </div>
                         {msg.attachmentName && (
@@ -370,7 +471,7 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
                       <span className="font-bold text-red-605 bg-red-100 dark:bg-red-950/40 px-1.5 py-0.5 rounded text-[10px] dark:text-red-400">
                         {attachment.name.split('.').pop().toUpperCase()}
                       </span>
-                      <span className="font-medium truncate max-w-[250px]">{attachment.name}</span>
+                      <span className="font-medium truncate max-w-62.5">{attachment.name}</span>
                     </div>
                     <button
                       type="button"

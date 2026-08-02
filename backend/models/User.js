@@ -38,7 +38,15 @@ const userSchema = new mongoose.Schema({
     approvalStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
     referenceToken: String,
     status: { type: String, enum: ['active', 'suspended'], default: 'active' },
-    reason: String
+    reason: String,
+
+    // Frontend alias fields to support robust Mongoose updates and avoid silent drops
+    bio: String,
+    company: String,
+    title: String,
+    experience: String,
+    projects: [projectSchema],
+    learningInterests: [String]
 }, { timestamps: true });
 
 export const User = mongoose.models.User || mongoose.model('User', userSchema);

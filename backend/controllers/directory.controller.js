@@ -68,32 +68,67 @@ export const getProfileById = async (req, res, next) => {
 export const updateProfile = async (req, res, next) => {
     try {
         const userId = req.params.id;
-        const updates = req.body;
 
-        // Strip out read-only fields
-        delete updates.email;
-        delete updates.passwordHash;
-        delete updates.role;
+        // Strict permit allow-list for profile fields to prevent privilege escalation (e.g. role, password change)
+        const allowedFields = [
+            'name', 'profilePicture', 'avatar', 'location', 
+            'department', 'course', 'yearOfStudy', 'interests', 'learningInterests', 
+            'skills', 'resumeLink', 'resumeName', 'projects', 'projectShowcase', 
+            'bio', 'professionalBio', 'experience', 'yearsOfExperience', 'willingToMentor',
+            'company', 'currentCompany', 'title', 'jobTitle'
+        ];
 
-        // Map frontend fields to DB schema fields
-        if (updates.company !== undefined) {
-            updates.currentCompany = updates.company;
-            delete updates.company;
-        }
-        if (updates.title !== undefined) {
-            updates.jobTitle = updates.title;
-            delete updates.title;
-        }
-        if (updates.projects !== undefined) {
-            updates.projectShowcase = updates.projects;
-            delete updates.projects;
-        }
-        if (updates.bio !== undefined) {
-            updates.professionalBio = updates.bio;
-            delete updates.bio;
+        const sanitizedUpdates = {};
+        for (const key of allowedFields) {
+            if (req.body[key] !== undefined) {
+                sanitizedUpdates[key] = req.body[key];
+            }
         }
 
-        const updated = await dataStore.update('User', { _id: userId }, updates);
+        // Handle bidirectional mappings / synchronizations for database & frontend consistency
+        if (sanitizedUpdates.company !== undefined) {
+            sanitizedUpdates.currentCompany = sanitizedUpdates.company;
+        } else if (sanitizedUpdates.currentCompany !== undefined) {
+            sanitizedUpdates.company = sanitizedUpdates.currentCompany;
+        }
+
+        if (sanitizedUpdates.title !== undefined) {
+            sanitizedUpdates.jobTitle = sanitizedUpdates.title;
+        } else if (sanitizedUpdates.jobTitle !== undefined) {
+            sanitizedUpdates.title = sanitizedUpdates.jobTitle;
+        }
+
+        if (sanitizedUpdates.projects !== undefined) {
+            sanitizedUpdates.projectShowcase = sanitizedUpdates.projects;
+        } else if (sanitizedUpdates.projectShowcase !== undefined) {
+            sanitizedUpdates.projects = sanitizedUpdates.projectShowcase;
+        }
+
+        if (sanitizedUpdates.bio !== undefined) {
+            sanitizedUpdates.professionalBio = sanitizedUpdates.bio;
+        } else if (sanitizedUpdates.professionalBio !== undefined) {
+            sanitizedUpdates.bio = sanitizedUpdates.professionalBio;
+        }
+
+        if (sanitizedUpdates.experience !== undefined) {
+            sanitizedUpdates.yearsOfExperience = sanitizedUpdates.experience;
+        } else if (sanitizedUpdates.yearsOfExperience !== undefined) {
+            sanitizedUpdates.experience = sanitizedUpdates.yearsOfExperience;
+        }
+
+        if (sanitizedUpdates.interests !== undefined) {
+            sanitizedUpdates.learningInterests = sanitizedUpdates.interests;
+        } else if (sanitizedUpdates.learningInterests !== undefined) {
+            sanitizedUpdates.interests = sanitizedUpdates.learningInterests;
+        }
+
+        if (sanitizedUpdates.avatar !== undefined) {
+            sanitizedUpdates.profilePicture = sanitizedUpdates.avatar;
+        } else if (sanitizedUpdates.profilePicture !== undefined) {
+            sanitizedUpdates.avatar = sanitizedUpdates.profilePicture;
+        }
+
+        const updated = await dataStore.update('User', { _id: userId }, { $set: sanitizedUpdates });
         if (!updated) {
             return res.status(404).json({
                 success: false,

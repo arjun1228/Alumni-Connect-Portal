@@ -376,6 +376,28 @@ export const dataStore = {
         }
     },
 
+    updateMany: async (modelName, query, updates) => {
+        if (isMongoConnected()) {
+            await models[modelName].updateMany(query, { $set: updates });
+            return;
+        } else {
+            const key = getCollectionKey(modelName);
+            const data = await readData();
+            const items = data[key] || [];
+            let changed = false;
+            for (let i = 0; i < items.length; i++) {
+                if (matchQuery(items[i], query)) {
+                    items[i] = { ...items[i], ...updates, updatedAt: new Date().toISOString() };
+                    changed = true;
+                }
+            }
+            if (changed) {
+                data[key] = items;
+                await writeData(data);
+            }
+        }
+    },
+
     remove: async (modelName, query) => {
         if (isMongoConnected()) {
             const doc = await models[modelName].findOneAndDelete(query).lean();

@@ -22,6 +22,7 @@ export const getConversations = async (req, res, next) => {
 
         const uniqueUserIds = new Set();
         const lastMessages = {};
+        const unreadCounts = {};
 
         for (const m of messages) {
             const sId = (m.sender || m.senderId || '').toString();
@@ -37,6 +38,15 @@ export const getConversations = async (req, res, next) => {
                     createdAt: m.createdAt || m.timestamp,
                     sender: sId
                 };
+                unreadCounts[otherUserId] = 0;
+            }
+
+            // Count unread messages sent by the other user to the current user
+            const isUnread = !m.readStatus && !m.read;
+            const sentByOther = sId === otherUserId;
+            const sentToMe = rId === currentUserId;
+            if (isUnread && sentByOther && sentToMe) {
+                unreadCounts[otherUserId] = (unreadCounts[otherUserId] || 0) + 1;
             }
         }
 
@@ -50,8 +60,17 @@ export const getConversations = async (req, res, next) => {
             const otherId = (u.id || u._id).toString();
             return {
                 user: cleanUser,
-                lastMessage: lastMessages[otherId] || null
+                lastMessage: lastMessages[otherId] || null,
+                hasUnread: (unreadCounts[otherId] || 0) > 0,
+                unreadCount: unreadCounts[otherId] || 0
             };
+        });
+
+        // Sort conversations by most recent message activity (newest first)
+        conversations.sort((a, b) => {
+            const aTime = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt).getTime() : 0;
+            const bTime = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt).getTime() : 0;
+            return bTime - aTime;
         });
 
         const mappedConversations = serializePayload(conversations);
@@ -64,6 +83,7 @@ export const getConversations = async (req, res, next) => {
         next(err);
     }
 };
+
 
 export const getChatHistory = async (req, res, next) => {
     try {
@@ -208,3 +228,24 @@ export const sendMessageLegacy = async (req, res, next) => {
         next(err);
     }
 };
+
+export const markMessagesRead = async (req, res, next) => {
+    try {
+        const currentUserId = (req.user.id || req.user._id).toString();
+        const otherUserId = req.params.userId;
+
+        // Mark all messages sent by the other user to the current user as read
+        await dataStore.updateMany('Message', {
+            $or: [
+                { sender: otherUserId, recipient: currentUserId },
+                { senderId: otherUserId, receiverId: currentUserId }
+            ],
+            readStatus: false
+        }, { readStatus: true });
+
+        res.status(200).json({ success: true, message: 'Messages marked as read.' });
+    } catch (err) {
+        next(err);
+    }
+};
+

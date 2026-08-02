@@ -68,11 +68,34 @@ export const serializeUser = (user) => {
     if (serialized.projects !== undefined && serialized.projectShowcase === undefined) {
         serialized.projectShowcase = serialized.projects;
     }
+    // Normalize project subdocument IDs: Mongoose returns _id, frontend expects id too
+    if (Array.isArray(serialized.projects)) {
+        serialized.projects = serialized.projects.map(p => {
+            if (!p) return p;
+            const proj = typeof p.toObject === 'function' ? p.toObject() : { ...p };
+            if (proj._id && !proj.id) proj.id = proj._id.toString();
+            if (proj.id && !proj._id) proj._id = proj.id;
+            return proj;
+        });
+        serialized.projectShowcase = serialized.projects;
+    }
     if (serialized.professionalBio !== undefined) {
         serialized.bio = serialized.professionalBio;
     }
     if (serialized.bio !== undefined && serialized.professionalBio === undefined) {
         serialized.professionalBio = serialized.bio;
+    }
+    if (serialized.yearsOfExperience !== undefined) {
+        serialized.experience = serialized.yearsOfExperience;
+    }
+    if (serialized.experience !== undefined && serialized.yearsOfExperience === undefined) {
+        serialized.yearsOfExperience = serialized.experience;
+    }
+    if (serialized.learningInterests !== undefined) {
+        serialized.interests = serialized.learningInterests;
+    }
+    if (serialized.interests !== undefined && serialized.learningInterests === undefined) {
+        serialized.learningInterests = serialized.interests;
     }
 
     return serialized;
@@ -96,8 +119,18 @@ export const serializePayload = (data) => {
     const mapped = { ...raw };
 
     // Map nested profiles
-    if (mapped.author && typeof mapped.author === 'object') {
+    if (mapped.author && typeof mapped.author === 'object' && (mapped.author.name || mapped.author.email)) {
         mapped.author = serializeUser(mapped.author);
+    } else if (mapped.authorName) {
+        // Fallback for deleted users or unpopulated author references using denormalized fields
+        mapped.author = serializeUser({
+            _id: (mapped.author && (mapped.author._id || mapped.author.id)) || mapped.author || 'deleted',
+            id: (mapped.author && (mapped.author.id || mapped.author._id)) || mapped.author || 'deleted',
+            name: mapped.authorName,
+            avatar: mapped.authorAvatar,
+            role: mapped.authorRole || 'GRADUATE',
+            isDeleted: true
+        });
     }
     if (mapped.organizer && typeof mapped.organizer === 'object') {
         mapped.organizer = serializeUser(mapped.organizer);

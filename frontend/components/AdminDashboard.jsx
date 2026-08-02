@@ -138,7 +138,7 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
     };
 
     return (
-        <div className="flex h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 theme-transition">
+        <div className={`flex h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 theme-transition overflow-hidden ${theme === 'dark' ? 'dark' : ''}`}>
             {/* Sidebar backdrop for mobile */}
             {isSidebarOpen && (
                 <div 
@@ -148,30 +148,30 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
             )}
 
             {/* Sidebar - Simplified for Admin */}
-            <aside className={`w-64 bg-slate-900 text-white flex flex-col fixed h-full z-20 transition-transform duration-300 ${
+            <aside className={`w-64 bg-white dark:bg-slate-900 text-slate-805 dark:text-white border-r border-slate-200 dark:border-slate-800 flex flex-col fixed h-full z-20 transition-transform duration-300 ${
                 isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
             }`}>
-                <div className="p-6 border-b border-slate-800 flex justify-between items-center">
+                <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
                     <h2 className="text-xl font-bold flex items-center gap-2">
-                        <Logo className="w-6 h-6 text-blue-400" />
+                        <Logo className="w-8 h-8" />
                         Admin Portal
                     </h2>
                     <button
                         onClick={() => setIsSidebarOpen(false)}
-                        className="md:hidden p-1 hover:bg-slate-800 rounded-lg text-slate-400 transition-colors cursor-pointer"
+                        className="md:hidden p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-500 dark:text-slate-400 transition-colors cursor-pointer"
                         aria-label="Close Sidebar"
-                    >
+                      >
                         <X className="w-5 h-5" />
                     </button>
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-4 mt-2">Directories</div>
+                    <div className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-4 mt-2">Directories</div>
                     <button
                         onClick={() => { setActiveView('STUDENTS'); setIsSidebarOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${activeView === 'STUDENTS'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
                         <Users className="w-5 h-5" />
@@ -180,20 +180,20 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                     <button
                         onClick={() => { setActiveView('ALUMNI'); setIsSidebarOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${activeView === 'ALUMNI'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
                         <GraduationCap className="w-5 h-5" />
                         Alumni Directory
                     </button>
 
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-4 mt-6">Monitoring</div>
+                    <div className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider mb-2 px-4 mt-6">Monitoring</div>
                     <button
                         onClick={() => { setActiveView('STUDENT_ACTIVITIES'); setIsSidebarOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${activeView === 'STUDENT_ACTIVITIES'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
                         <Activity className="w-5 h-5" />
@@ -202,20 +202,20 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                     <button
                         onClick={() => { setActiveView('ALUMNI_ACTIVITIES'); setIsSidebarOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${activeView === 'ALUMNI_ACTIVITIES'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
                         <Activity className="w-5 h-5" />
                         Alumni Activities
                     </button>
 
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-4 mt-6">User Content</div>
+                    <div className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider mb-2 px-4 mt-6">User Content</div>
                     <button
                         onClick={() => { setActiveView('FEED'); setIsSidebarOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${activeView === 'FEED'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
                         <GraduationCap className="w-5 h-5" />
@@ -224,8 +224,8 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                     <button
                         onClick={() => { setActiveView('JOBS'); setIsSidebarOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${activeView === 'JOBS'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
                         <Briefcase className="w-5 h-5" />
@@ -234,20 +234,20 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                     <button
                         onClick={() => { setActiveView('EVENTS'); setIsSidebarOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${activeView === 'EVENTS'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
                         <Calendar className="w-5 h-5" />
                         Events & Workshops
                     </button>
 
-                    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-4 mt-6">Audit</div>
+                    <div className="text-xs font-semibold text-slate-400 dark:text-slate-550 uppercase tracking-wider mb-2 px-4 mt-6">Audit</div>
                     <button
                         onClick={() => { setActiveView('ACTIVITY_LOG'); setIsSidebarOpen(false); }}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${activeView === 'ACTIVITY_LOG'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50'
-                            : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
                             }`}
                     >
                         <ClipboardList className="w-5 h-5" />
@@ -255,20 +255,23 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                     </button>
                 </nav>
 
-                <div className="p-4 border-t border-slate-800 space-y-3 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-bold text-lg text-white">
+                <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-3 shrink-0">
+                    <button
+                        onClick={() => { setActiveView('PROFILE'); setIsSidebarOpen(false); }}
+                        className="w-full flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors text-left cursor-pointer group"
+                    >
+                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-bold text-lg text-white group-hover:ring-2 group-hover:ring-blue-400 transition-all shrink-0">
                             {currentUser.name ? currentUser.name[0] : 'A'}
                         </div>
-                        <div>
-                            <p className="font-medium text-sm text-white">{currentUser.name}</p>
-                            <p className="text-xs text-slate-400">Administrator</p>
+                        <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-sm text-slate-800 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{currentUser.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-405 truncate">Administrator</p>
                         </div>
-                    </div>
-                    <div className="flex items-center justify-between mt-2 pt-3 border-t border-slate-800">
+                    </button>
+                    <div className="flex items-center justify-between mt-2 pt-3 border-t border-slate-200 dark:border-slate-800">
                         <button
                             onClick={toggleTheme}
-                            className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+                            className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
                             aria-label="Toggle Theme"
                         >
                             {theme === 'dark' ? (
@@ -278,7 +281,7 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                                 </>
                             ) : (
                                 <>
-                                    <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                                    <Moon className="w-3.5 h-3.5 text-indigo-500" />
                                     <span>Dark Mode</span>
                                 </>
                             )}
@@ -286,7 +289,7 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                         {onLogout && (
                             <button
                                 onClick={onLogout}
-                                className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors cursor-pointer"
                             >
                                 <LogOut className="w-3.5 h-3.5" /> Sign Out
                             </button>
@@ -316,6 +319,7 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                             {activeView === 'JOBS' && 'Career Opportunities'}
                             {activeView === 'EVENTS' && 'Upcoming Events'}
                             {activeView === 'ACTIVITY_LOG' && 'Admin Activity Log'}
+                            {activeView === 'PROFILE' && 'Administrator Profile'}
                         </h1>
                     </div>
                     {['STUDENTS', 'ALUMNI', 'STUDENT_ACTIVITIES', 'ALUMNI_ACTIVITIES', 'ACTIVITY_LOG'].includes(activeView) && (
@@ -323,7 +327,7 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                             placeholder="Search..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="max-w-[150px] sm:max-w-xs md:max-w-sm ml-auto mr-4 text-sm"
+                            className="max-w-37.5 sm:max-w-xs md:max-w-sm ml-auto mr-4 text-sm"
                         />
                     )}
                 </header>
@@ -619,14 +623,14 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                                 {activities.length > 0 ? activities.map((log) => (
                                                     <tr key={log._id || log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                                                        <td className="px-6 py-3 text-xs font-mono text-slate-500 dark:text-slate-450 truncate max-w-[120px]">{log.adminId}</td>
+                                                        <td className="px-6 py-3 text-xs font-mono text-slate-500 dark:text-slate-455 truncate max-w-30">{log.adminId}</td>
                                                         <td className="px-6 py-3">
                                                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/30">
                                                                 {log.action}
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-3 text-sm text-slate-600 dark:text-slate-350">{log.targetType}</td>
-                                                        <td className="px-6 py-3 text-xs font-mono text-slate-500 dark:text-slate-450 truncate max-w-[120px]">{log.targetId}</td>
+                                                        <td className="px-6 py-3 text-xs font-mono text-slate-500 dark:text-slate-455 truncate max-w-30">{log.targetId}</td>
                                                         <td className="px-6 py-3 text-xs text-slate-400 dark:text-slate-500">
                                                             {log.createdAt ? new Date(log.createdAt).toLocaleString() : '—'}
                                                         </td>
@@ -638,6 +642,33 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
                                                 )}
                                             </tbody>
                                         </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ADMIN PROFILE VIEW */}
+                            {activeView === 'PROFILE' && (
+                                <div className="max-w-md mx-auto bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 space-y-6">
+                                    <div className="text-center">
+                                        <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center font-bold text-3xl text-white mx-auto mb-4">
+                                            {currentUser.name ? currentUser.name[0] : 'A'}
+                                        </div>
+                                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{currentUser.name}</h2>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">College Administrator</p>
+                                    </div>
+                                    <div className="border-t border-slate-100 dark:border-slate-800 pt-6 space-y-4 text-sm text-slate-800 dark:text-slate-250">
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500 dark:text-slate-400 font-medium">Email</span>
+                                            <span className="text-slate-850 dark:text-slate-200 font-semibold">{currentUser.email || 'admin@university.edu'}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500 dark:text-slate-400 font-medium">Role</span>
+                                            <span className="text-slate-850 dark:text-slate-200 font-semibold">System Administrator</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-500 dark:text-slate-400 font-medium">Privileges</span>
+                                            <span className="text-slate-850 dark:text-slate-200 font-semibold">Full System Access</span>
+                                        </div>
                                     </div>
                                 </div>
                             )}

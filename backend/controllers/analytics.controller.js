@@ -113,7 +113,7 @@ export const getAnalyticsData = async (req, res, next) => {
             }
         };
         
-        // Calculate Top Skills based on active Job listings
+        // Calculate Top Skills based on active Job listings and Student profile skills
         const jobQuery = {};
         if (startDate) {
             jobQuery.createdAt = { $gte: startDate.toISOString() };
@@ -131,20 +131,33 @@ export const getAnalyticsData = async (req, res, next) => {
                 }
             }
         }
+
+        // Also aggregate skills from actual user profiles to ensure genuine live numbers
+        const users = await dataStore.find('User', {});
+        for (const u of users) {
+            if (u.skills && Array.isArray(u.skills)) {
+                for (const skill of u.skills) {
+                    const normalized = skill.trim();
+                    if (normalized) {
+                        skillsCount[normalized] = (skillsCount[normalized] || 0) + 1;
+                    }
+                }
+            }
+        }
         
         let skillData = Object.entries(skillsCount)
             .map(([name, value]) => ({ name, students: value }))
             .sort((a, b) => b.students - a.students)
             .slice(0, 5);
             
-        // Fallback default skills if no real data in DB
+        // Fallback placeholder defaults ONLY if database is entirely empty of all user profiles and jobs
         if (skillData.length === 0) {
             skillData = [
-                { name: 'React', students: 120 },
-                { name: 'Python', students: 98 },
-                { name: 'AWS', students: 86 },
-                { name: 'System Design', students: 75 },
-                { name: 'Data Sci', students: 65 },
+                { name: 'React', students: 0 },
+                { name: 'Python', students: 0 },
+                { name: 'JavaScript', students: 0 },
+                { name: 'System Design', students: 0 },
+                { name: 'Node.js', students: 0 }
             ];
         }
         
@@ -161,11 +174,13 @@ export const getAnalyticsData = async (req, res, next) => {
         }
         const posts = await dataStore.find('Post', postQuery);
         for (const post of posts) {
-            const d = new Date(post.createdAt);
+            const d = new Date(post.createdAt || post.updatedAt || Date.now());
             const dayName = daysOfWeek[d.getDay()];
-            activityMap[dayName].posts += 1;
-            const interactions = (post.likes ? post.likes.length : 0) + (post.comments ? post.comments.length : 0);
-            activityMap[dayName].views += (interactions * 3) + 5;
+            if (activityMap[dayName]) {
+                activityMap[dayName].posts += 1;
+                const interactions = (post.likes ? post.likes.length : 0) + (post.comments ? post.comments.length : 0);
+                activityMap[dayName].views += (interactions * 3) + 5;
+            }
         }
         
         const msgQuery = {};
@@ -174,27 +189,14 @@ export const getAnalyticsData = async (req, res, next) => {
         }
         const messages = await dataStore.find('Message', msgQuery);
         for (const msg of messages) {
-            const d = new Date(msg.createdAt);
+            const d = new Date(msg.createdAt || Date.now());
             const dayName = daysOfWeek[d.getDay()];
-            activityMap[dayName].views += 2;
+            if (activityMap[dayName]) {
+                activityMap[dayName].views += 2;
+            }
         }
         
         let activityData = daysOfWeek.map(day => activityMap[day]);
-        
-        // Fallback default activity data if no real activity in database
-        const totalPosts = activityData.reduce((sum, item) => sum + item.posts, 0);
-        const totalViews = activityData.reduce((sum, item) => sum + item.views, 0);
-        if (totalPosts === 0 && totalViews === 0) {
-            activityData = [
-                { name: 'Mon', views: 400, posts: 24 },
-                { name: 'Tue', views: 300, posts: 18 },
-                { name: 'Wed', views: 550, posts: 35 },
-                { name: 'Thu', views: 450, posts: 28 },
-                { name: 'Fri', views: 600, posts: 42 },
-                { name: 'Sat', views: 200, posts: 10 },
-                { name: 'Sun', views: 150, posts: 8 },
-            ];
-        }
         
         res.status(200).json({
             success: true,

@@ -107,21 +107,30 @@ export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = fal
   };
 
   const handleRemoveProject = (id) => {
-    setEditProjects(editProjects.filter(p => p.id !== id));
+    setEditProjects(editProjects.filter(p => (p.id || p._id) !== id));
   };
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+
+    // Strip the client-side tracking `id` from new projects before sending to server.
+    // Existing projects from DB have `_id` which Mongoose handles correctly.
+    // New projects created in this session only have a temporary `id` used for the remove button.
+    const cleanProjects = editProjects.map(({ id: _tempId, ...rest }) => rest);
+
     const updatedData = {
       ...user,
       name: editName,
       title: isStudent ? 'Student' : editTitle,
       bio: editBio,
+      // For students: editBio holds the "Experience / Background" text.
+      // Populate the `experience` alias field too so both DB paths are in sync.
+      experience: isStudent ? editBio : (user.experience || ''),
       location: editLocation,
       company: editCompany,
       department: editDepartment,
       yearsOfExperience: editExperience,
-      projects: editProjects,
+      projects: cleanProjects,
       resumeName: editResumeName,
       resumeLink: editResumeLink,
       interests: editInterests,
@@ -183,7 +192,7 @@ export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = fal
           <div>
             <h1 className={isSidebar ? "text-lg font-bold text-slate-900 dark:text-white" : "text-2xl font-bold text-slate-900 dark:text-white"}>{user.name}</h1>
             {!isStudent && (user.jobTitle || user.currentCompany) ? (
-              <p className="text-slate-600 dark:text-slate-350 font-medium flex items-center gap-2 mt-1 text-sm">
+              <p className="text-slate-600 dark:text-slate-300 font-medium flex items-center gap-2 mt-1 text-sm">
                 <Briefcase className="w-4 h-4 text-slate-400" />
                 {user.jobTitle && user.currentCompany
                   ? `${user.jobTitle} at ${user.currentCompany}`
@@ -191,12 +200,12 @@ export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = fal
               </p>
             ) : null}
             {user.createdAt && (
-              <p className="text-slate-500 dark:text-slate-450 text-sm flex items-center gap-2 mt-1">
+              <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-2 mt-1">
                 <Calendar className="w-3 h-3 text-slate-400" /> Joined {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
               </p>
             )}
             {user.location && (
-              <p className="text-slate-500 dark:text-slate-455 text-sm flex items-center gap-2 mt-1">
+              <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-2 mt-1">
                 <MapPin className="w-3 h-3 text-slate-400" /> {user.location}
               </p>
             )}
@@ -216,7 +225,7 @@ export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = fal
             </h2>
             <div className="prose prose-slate dark:prose-invert text-sm max-w-none">
               <p className="text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
-                {isStudent ? (user.experience || "No experience listed yet.") : (user.bio || "No professional summary added.")}
+                {isStudent ? (user.bio || "No experience listed yet.") : (user.bio || "No professional summary added.")}
               </p>
             </div>
 
@@ -276,7 +285,7 @@ export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = fal
                         </a>
                       )}
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-350 mb-3">{project.description}</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-200 mb-3">{project.description}</p>
                     <div className="flex flex-wrap gap-2">
                       {(project.technologies || []).map((tech, i) => (
                         <span key={i} className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 px-2 py-0.5 rounded">
@@ -321,7 +330,7 @@ export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = fal
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-800 dark:text-white">Job Description</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-350 mt-1 leading-relaxed">
+                  <p className="text-sm text-slate-700 dark:text-slate-200 mt-1 leading-relaxed">
                     {user.bio || "No description provided."}
                   </p>
                 </div>
@@ -354,33 +363,33 @@ export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = fal
             {isStudent ? (
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
-                  <Building2 className="w-5 h-5 text-slate-450 mt-0.5" />
+                  <Building2 className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white">Department</p>
-                    <p className="text-sm text-slate-600 dark:text-slate-350">{user.department || 'Not specified'}</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-200 font-medium">{user.department || 'Not specified'}</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <BookOpen className="w-5 h-5 text-slate-455 mt-0.5" />
+                  <BookOpen className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white">Course</p>
-                    <p className="text-sm text-slate-600 dark:text-slate-355">{user.course || 'Not specified'}</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-200 font-medium">{user.course || 'Not specified'}</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-slate-455 mt-0.5" />
+                  <Calendar className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white">Year of Study</p>
-                    <p className="text-sm text-slate-600 dark:text-slate-355">{user.yearOfStudy ? `Year ${user.yearOfStudy}` : 'Not specified'}</p>
+                    <p className="text-sm text-slate-700 dark:text-slate-200 font-medium">{user.yearOfStudy ? `Year ${user.yearOfStudy}` : 'Not specified'}</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
-                  <Award className="w-5 h-5 text-slate-455 mt-0.5" />
+                  <Award className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                   <div>
                     <p className="text-sm font-semibold text-slate-800 dark:text-white">Skills</p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {user.skills?.map(s => (
-                        <span key={s} className="text-xs bg-slate-100 dark:bg-slate-950 px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-medium">{s}</span>
+                        <span key={s} className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-800 dark:text-slate-200 font-medium">{s}</span>
                       )) || <span className="text-xs text-slate-500">None listed</span>}
                     </div>
                   </div>
@@ -506,7 +515,7 @@ export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = fal
                           {editResumeName ? 'Change Resume' : 'Upload Resume'}
                         </label>
                         {editResumeName && (
-                          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title={editResumeName}>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-50" title={editResumeName}>
                             {editResumeName}
                           </span>
                         )}
@@ -714,7 +723,7 @@ export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = fal
                           {editResumeName ? 'Change Resume' : 'Upload Resume'}
                         </label>
                         {editResumeName && (
-                          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-[200px]" title={editResumeName}>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-50" title={editResumeName}>
                             {editResumeName}
                           </span>
                         )}

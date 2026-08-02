@@ -110,10 +110,11 @@ export const Jobs = ({ jobs, setJobs, currentUser }) => {
   };
 
   const isAlumni = currentUser.role === UserRole.GRADUATE;
+  const isAdmin = currentUser.role?.toLowerCase() === 'admin';
 
   const filteredJobs = jobs.filter(job => {
-    // If the logged-in user is an Alumni, show only Full-Time jobs
-    if (isAlumni && job.type !== 'FULL_TIME') {
+    // If the logged-in user is an Alumni (not admin), show only Full-Time jobs
+    if (isAlumni && !isAdmin && job.type !== 'FULL_TIME') {
       return false;
     }
 
@@ -126,8 +127,8 @@ export const Jobs = ({ jobs, setJobs, currentUser }) => {
   });
 
   const displayedJobs = (aiSearchResults !== null)
-    ? aiSearchResults.filter(job => !isAlumni || job.type === 'FULL_TIME')
-    : jobs.filter(job => !isAlumni || job.type === 'FULL_TIME');
+    ? aiSearchResults.filter(job => !isAlumni || isAdmin || job.type === 'FULL_TIME')
+    : jobs.filter(job => !isAlumni || isAdmin || job.type === 'FULL_TIME');
 
   return (
     <div className="space-y-6 text-slate-800 dark:text-slate-100">
@@ -136,7 +137,7 @@ export const Jobs = ({ jobs, setJobs, currentUser }) => {
           <h1 className="text-2xl font-bold text-slate-805 dark:text-white">Career Opportunities</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Curated roles from our alumni network</p>
         </div>
-        {currentUser.role === UserRole.GRADUATE && (
+        {(currentUser.role === UserRole.GRADUATE || currentUser.role?.toLowerCase() === 'admin') && (
           <button
             onClick={() => setIsPosting(true)}
             className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-md"
@@ -259,8 +260,8 @@ export const Jobs = ({ jobs, setJobs, currentUser }) => {
                 ))}
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
-                <img src={job.postedBy?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(job.postedBy?.name || 'Deleted User')}`} className="w-5 h-5 rounded-full border border-slate-100 dark:border-slate-800" alt="poster" />
-                <span>Posted by {job.postedBy?.name || 'Deleted User'} • {job.postedDate || 'Just now'}</span>
+                <img src={job.postedBy?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(job.postedBy?.name || 'Alumni Member')}`} className="w-5 h-5 rounded-full border border-slate-100 dark:border-slate-800" alt="poster" />
+                <span>Posted by {job.postedBy?.name || 'Alumni Member'} • {job.postedDate || 'Just now'}</span>
               </div>
             </div>
           </div>
