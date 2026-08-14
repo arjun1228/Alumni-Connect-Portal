@@ -37,12 +37,7 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Apply helmet security headers (configured to allow cross-origin resource sharing/loading)
-app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
-
-// Robust CORS middleware allowing local dev, specified FRONTEND_URL, and any *.vercel.app deployment
+// 1. CORS middleware must run FIRST so OPTIONS preflight requests receive headers before rate limiters
 app.use((req, res, next) => {
     const origin = req.headers.origin;
     const allowed = [
@@ -63,6 +58,11 @@ app.use((req, res, next) => {
     }
     next();
 });
+
+// Apply helmet security headers
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // General rate limiter for all API endpoints to prevent brute-force and DDoS
 const apiLimiter = rateLimit({
