@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "node server.js",
     "server": "nodemon server.js"
   },
   "dependencies": {
-    "alumniconnect-portal-root": "file:..",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.5",

@@ -1,4 +1,4 @@
-const API_URL = '/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 import { INITIAL_POSTS, INITIAL_JOBS, INITIAL_EVENTS } from '../data/mockData';
 
 // Helper to retrieve JWT from localStorage

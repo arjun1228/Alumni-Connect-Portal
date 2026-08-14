@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "alumniconnect-portal-root": "file:..",
     "lucide-react": "^0.560.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
