@@ -43,17 +43,27 @@ app.use(helmet({
 }));
 
 // CORS setup — allow local dev + production Vercel frontend
+const rawFrontendUrl = (process.env.FRONTEND_URL || '').replace(/\/+$/, '').trim();
+
 const allowedOrigins = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    process.env.FRONTEND_URL,
+    rawFrontendUrl
 ].filter(Boolean);
 
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (curl, Postman, server-to-server)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
+
+        const cleanOrigin = origin.replace(/\/+$/, '').trim();
+
+        // Direct match against whitelist or vercel.app preview/production subdomains for this project
+        if (allowedOrigins.includes(cleanOrigin) || cleanOrigin.endsWith('.vercel.app')) {
+            return callback(null, true);
+        }
+
+        console.error(`❌ CORS blocked origin: ${origin}`);
         callback(new Error(`CORS: Origin ${origin} not allowed`));
     },
     credentials: true
