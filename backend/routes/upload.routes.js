@@ -6,7 +6,7 @@ import { uploadMedia } from '../services/mediaUpload.js';
 const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 
-router.post('/', authenticate, upload.single('image'), async (req, res, next) => {
+router.post('/', authenticate, upload.single('file'), async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({

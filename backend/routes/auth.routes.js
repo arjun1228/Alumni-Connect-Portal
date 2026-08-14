@@ -89,6 +89,27 @@ router.post('/verify-email', signupLimiter, verifyEmail);
 router.post('/resend-verification', signupLimiter, resendVerification);
 router.get('/me', authenticate, getMe);
 
+// Public stats endpoint for landing page (does not require authentication)
+router.get('/public-stats', async (req, res, next) => {
+    try {
+        const students = await dataStore.find('User', { role: 'student' });
+        const approvedAlumni = await dataStore.find('User', { role: 'alumni', approvalStatus: 'approved' });
+        const jobs = await dataStore.find('Job', {});
+        const events = await dataStore.find('Event', {});
+        res.json({
+            success: true,
+            data: {
+                studentsCount: students.length,
+                alumniCount: approvedAlumni.length,
+                jobsCount: jobs.length,
+                eventsCount: events.length
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
 // Google Sign-In Routes
 router.get('/google', (req, res, next) => {
     if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {

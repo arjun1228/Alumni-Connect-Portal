@@ -363,7 +363,7 @@ export const cancelRsvpEvent = async (eventId) => {
 export const uploadImage = async (file) => {
     try {
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('file', file); // changed to file
 
         const res = await fetch(`${API_URL}/upload`, {
             method: 'POST',
@@ -375,6 +375,25 @@ export const uploadImage = async (file) => {
         return json.url || json.data?.url;
     } catch (error) {
         console.error('Failed to upload image:', error);
+        throw error;
+    }
+};
+
+export const uploadFile = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch(`${API_URL}/upload`, {
+            method: 'POST',
+            headers: { ...getAuthHeaders() },
+            body: formData
+        });
+        if (!res.ok) throw new Error('File upload failed');
+        const json = await res.json();
+        return json.url || json.data?.url;
+    } catch (error) {
+        console.error('Failed to upload file:', error);
         throw error;
     }
 };
@@ -1019,3 +1038,15 @@ export const fetchAnalyticsData = async (range) => {
     }
     return json.data;
 };
+
+export const fetchPublicStats = async () => {
+    const res = await fetch(`${API_URL}/auth/public-stats`, {
+        method: 'GET'
+    });
+    const json = await res.json();
+    if (!res.ok) {
+        throw new Error(json.message || 'Failed to fetch public stats');
+    }
+    return json.data;
+};
+

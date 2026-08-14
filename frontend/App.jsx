@@ -214,7 +214,7 @@ function App() {
           ) : (
             <div className="h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 theme-transition flex overflow-hidden">
               {/* Sidebar */}
-              <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transform transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:overflow-y-auto md:translate-x-0 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+              <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transform transition-transform duration-300 ease-in-out md:translate-x-0 flex flex-col ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="p-6">
                   <div className="flex items-center gap-2.5 mb-8">
                     <Logo className="w-8 h-8" />
@@ -277,7 +277,7 @@ function App() {
               </aside>
 
               {/* Main Content */}
-              <main className="flex-1 h-screen overflow-y-auto bg-slate-50 dark:bg-slate-950 theme-transition">
+              <main className="flex-1 h-screen overflow-y-auto bg-slate-50 dark:bg-slate-950 theme-transition md:ml-64">
                 <div className="md:hidden flex items-center justify-between p-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
                   <div className="flex items-center gap-2">
                     <Logo className="w-7 h-7" />

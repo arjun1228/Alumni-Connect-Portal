@@ -1,14 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { School, Moon, Sun, MessageSquare, Briefcase, Calendar, Sparkles, ArrowRight, GraduationCap, Users } from 'lucide-react';
 import { ScrollReveal } from './ScrollReveal';
 import { Logo } from './Logo';
+import { fetchPublicStats } from '../services/api';
 
 export const LandingPage = ({ onGetStarted, theme, toggleTheme }) => {
   const [openFaq, setOpenFaq] = useState(null);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [stats, setStats] = useState({
+    studentsCount: 0,
+    alumniCount: 0,
+    jobsCount: 0,
+    eventsCount: 0
+  });
+
+  // Fetch live stats from database
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const data = await fetchPublicStats();
+        setStats({
+          studentsCount: data.studentsCount || 0,
+          alumniCount: data.alumniCount || 0,
+          jobsCount: data.jobsCount || 0,
+          eventsCount: data.eventsCount || 0
+        });
+      } catch (err) {
+        console.error('Failed to load public stats from database:', err);
+      }
+    };
+    loadStats();
+  }, []);
 
   // Auto-run slide animation (video format preview)
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % 4);
     }, 4500);
@@ -138,11 +163,11 @@ export const LandingPage = ({ onGetStarted, theme, toggleTheme }) => {
                               <div className="flex justify-between items-start">
                                 <div>
                                   <h3 className="font-bold text-sm text-slate-100">Frontend Developer</h3>
-                                  <p className="text-[11px] text-slate-455">TechCorp • Mountain View, CA</p>
+                                  <p className="text-[11px] text-slate-400">Stripe • Remote • Full-time</p>
                                 </div>
-                                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/40 border border-emerald-900/50 px-2 py-0.5 rounded">Apply Instant</span>
+                                <span className="text-[10px] text-indigo-400 font-bold bg-indigo-950/40 border border-indigo-900/50 px-2 py-0.5 rounded">Referral Active</span>
                               </div>
-                              <p className="text-[11px] text-slate-400 leading-relaxed">Collaborate with modern design systems to build responsive interfaces. Required: React, Next.js, and CSS.</p>
+                              <p className="text-[11px] text-slate-400 leading-relaxed">Looking for a React developer to join our core growth team. Referral available from alumni Sarah.</p>
                             </div>
                           </div>
                           <div className="flex justify-between items-center pt-2">
@@ -358,10 +383,10 @@ export const LandingPage = ({ onGetStarted, theme, toggleTheme }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
-                { number: "500+", label: "Active Students", desc: "Building careers" },
-                { number: "200+", label: "Alumni Mentors", desc: "Providing guidance" },
-                { number: "150+", label: "Jobs Posted", desc: "Exclusive opportunities" },
-                { number: "50+", label: "Events Hosted", desc: "Networking & growth" },
+                { number: stats.studentsCount > 0 ? `${stats.studentsCount}` : "500+", label: "Active Students", desc: "Building careers" },
+                { number: stats.alumniCount > 0 ? `${stats.alumniCount}` : "200+", label: "Alumni Mentors", desc: "Providing guidance" },
+                { number: stats.jobsCount > 0 ? `${stats.jobsCount}` : "150+", label: "Jobs Posted", desc: "Exclusive opportunities" },
+                { number: stats.eventsCount > 0 ? `${stats.eventsCount}` : "50+", label: "Events Hosted", desc: "Networking & growth" },
               ].map((stat, i) => (
                 <ScrollReveal key={i} style={{ animationDelay: `${i * 100}ms` }}>
                   <div className="p-6 rounded-2xl glass-card relative overflow-hidden group">
@@ -376,64 +401,76 @@ export const LandingPage = ({ onGetStarted, theme, toggleTheme }) => {
           </div>
         </section>
 
-        {/* FAQ Section */}
-        <section className="py-20 bg-white dark:bg-slate-900/40 theme-transition">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
+        {/* Project Information Section */}
+        <section className="py-20 bg-slate-50 dark:bg-slate-950 theme-transition">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
               <ScrollReveal>
                 <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                  Frequently Asked Questions
+                  About AlumniConnect
                 </h2>
               </ScrollReveal>
               <ScrollReveal animationClass="animate-in fade-in slide-in-from-bottom-2 duration-700 delay-100">
-                <p className="mt-4 text-slate-500 dark:text-slate-400">
-                  Got questions? We've got answers.
+                <p className="mt-4 text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+                  A premium portal designed specifically for students, alumni, and administrators to ensure secure and highly relevant professional interactions.
                 </p>
               </ScrollReveal>
             </div>
 
-            <div className="space-y-4">
-              {[
-                {
-                  q: "Is this only for my university?",
-                  a: "Yes, AlumniConnect is a closed network designed specifically for students, alumni, and administrators of our university to ensure secure and highly relevant professional interactions."
-                },
-                {
-                  q: "How does the AI Career Mentor work?",
-                  a: "The AI Career Mentor uses state-of-the-art Large Language Models (LLMs) to analyze your resume, mock interview answers, and provide feedback on industrial skill gaps in real-time."
-                },
-                {
-                  q: "How do I get verified as an alumni?",
-                  a: "When signing up, you can submit your company credentials or reference token. Platform administrators review and approve pending registrations to maintain community standards."
-                },
-                {
-                  q: "Are the jobs posted here exclusive?",
-                  a: "Many listings are posted directly by alumni who are hiring for their respective teams, providing students with direct access to internal referrals and opportunities."
-                }
-              ].map((faq, i) => {
-                const isOpen = openFaq === i;
-                return (
-                  <ScrollReveal key={i} style={{ animationDelay: `${i * 100}ms` }}>
-                    <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden bg-slate-50/50 dark:bg-slate-950/20">
-                      <button
-                        type="button"
-                        onClick={() => setOpenFaq(isOpen ? null : i)}
-                        className="w-full flex justify-between items-center p-5 text-left font-bold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900/50 transition-colors cursor-pointer"
-                      >
-                        <span>{faq.q}</span>
-                        <span className={`text-indigo-600 dark:text-indigo-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
-                          ▼
-                        </span>
-                      </button>
-                      {isOpen && (
-                        <div className="p-5 pt-0 text-sm text-slate-650 dark:text-slate-400 leading-relaxed border-t border-slate-200/50 dark:border-slate-800/50 animate-in fade-in slide-in-from-top-1">
-                          {faq.a}
-                        </div>
-                      )}
-                    </div>
-                  </ScrollReveal>
-                );
-              })}
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* About Card 1 */}
+              <ScrollReveal style={{ animationDelay: '0ms' }}>
+                <div className="p-8 pt-10 accent-card accent-card-indigo group">
+                  <span className="accent-card-number text-indigo-900 dark:text-indigo-200">01</span>
+                  <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-indigo-500 to-indigo-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-indigo-500/30 accent-icon">
+                    <GraduationCap className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">1-on-1 Mentorship</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Connect directly with verified alumni currently working at top tech firms. Get advice on career progression, tech stacks, and request internal job referrals.
+                  </p>
+                  <button onClick={onGetStarted} className="mt-5 flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400 text-xs font-semibold hover:underline cursor-pointer group/cta">
+                    <span>Start connecting</span>
+                    <span className="transition-transform duration-300 group-hover/cta:translate-x-1">→</span>
+                  </button>
+                </div>
+              </ScrollReveal>
+
+              {/* About Card 2 */}
+              <ScrollReveal style={{ animationDelay: '120ms' }}>
+                <div className="p-8 pt-10 accent-card accent-card-emerald group">
+                  <span className="accent-card-number text-emerald-900 dark:text-emerald-200">02</span>
+                  <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-emerald-500/30 accent-icon">
+                    <Briefcase className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Exclusive Job Portal</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Access handpicked jobs and internships posted directly by alumni hiring for their respective teams. Apply online and request immediate referral opportunities.
+                  </p>
+                  <button onClick={onGetStarted} className="mt-5 flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-semibold hover:underline cursor-pointer group/cta">
+                    <span>Browse opportunities</span>
+                    <span className="transition-transform duration-300 group-hover/cta:translate-x-1">→</span>
+                  </button>
+                </div>
+              </ScrollReveal>
+
+              {/* About Card 3 */}
+              <ScrollReveal style={{ animationDelay: '240ms' }}>
+                <div className="p-8 pt-10 accent-card accent-card-purple group">
+                  <span className="accent-card-number text-purple-900 dark:text-purple-200">03</span>
+                  <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white mb-6 shadow-lg shadow-purple-500/30 accent-icon">
+                    <Sparkles className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">AI Resume & Mock Review</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Leverage our AI Career Mentor to scan your resume, evaluate industry skill discrepancies, practice target role-specific mock interviews, and structure your growth roadmap.
+                  </p>
+                  <button onClick={onGetStarted} className="mt-5 flex items-center gap-1.5 text-purple-600 dark:text-purple-400 text-xs font-semibold hover:underline cursor-pointer group/cta">
+                    <span>Try AI Mentor</span>
+                    <span className="transition-transform duration-300 group-hover/cta:translate-x-1">→</span>
+                  </button>
+                </div>
+              </ScrollReveal>
             </div>
           </div>
         </section>

@@ -125,16 +125,14 @@ export const sendMessage = async (req, res, next) => {
         const currentUserId = (req.user.id || req.user._id).toString();
         const otherUserId = req.params.userId;
 
-        const parsed = messageSchemaVal.safeParse(req.body);
-        if (!parsed.success) {
+        // Custom validation to allow attachments even if text is empty
+        const { text, attachmentName, attachmentType } = req.body;
+        if ((!text || !text.trim()) && !attachmentName) {
             return res.status(400).json({
                 success: false,
-                message: 'Validation Error',
-                errors: parsed.error.flatten().fieldErrors
+                message: 'Message text or attachment is required.'
             });
         }
-
-        const { text } = parsed.data;
 
         // Verify recipient exists
         const recipient = await dataStore.findById('User', otherUserId);
@@ -148,8 +146,10 @@ export const sendMessage = async (req, res, next) => {
         const messageData = {
             sender: currentUserId,
             recipient: otherUserId,
-            text,
-            readStatus: false
+            text: text || '',
+            readStatus: false,
+            attachmentName,
+            attachmentType
         };
 
         const newMessage = await dataStore.insert('Message', messageData);

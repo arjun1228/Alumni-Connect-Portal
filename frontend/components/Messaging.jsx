@@ -3,7 +3,7 @@ import { UserRole } from '../types';
 import { Search, MessageCircle, Send, ArrowLeft, MoreVertical, UserCircle, X, CheckCheck, Paperclip, ExternalLink, Download, Shield } from 'lucide-react';
 import { Profile } from './Profile';
 import { SearchInput } from './SearchInput';
-import { fetchAllUsers, fetchMessages, sendMessage, fetchConversations, markConversationRead } from '../services/api';
+import { fetchAllUsers, fetchMessages, sendMessage, fetchConversations, markConversationRead, uploadFile } from '../services/api';
 
 // Mock Directory Data (Fallback)
 const MOCK_DIRECTORY = [
@@ -184,6 +184,20 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
     e.preventDefault();
     if ((!messageInput.trim() && !attachment) || !selectedUser) return;
 
+    let finalAttachmentName = attachment ? attachment.name : undefined;
+    let finalAttachmentType = attachment ? attachment.type : undefined;
+
+    // If attachment is a real File object, upload it first to Cloudinary / storage
+    if (attachment && attachment.file) {
+      try {
+        const fileUrl = await uploadFile(attachment.file);
+        // We use attachmentType to store the actual file URL for downloading/viewing
+        finalAttachmentType = fileUrl;
+      } catch (error) {
+        console.error("File upload failed, falling back to local metadata:", error);
+      }
+    }
+
     const tempId = Date.now().toString();
     const newMessage = {
       id: tempId,
@@ -192,8 +206,8 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
       text: messageInput || '',
       timestamp: new Date().toISOString(),
       read: false,
-      attachmentName: attachment ? attachment.name : undefined,
-      attachmentType: attachment ? attachment.type : undefined
+      attachmentName: finalAttachmentName,
+      attachmentType: finalAttachmentType
     };
 
     // Optimistic update
@@ -429,13 +443,15 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
                               <p className="font-semibold truncate">{msg.attachmentName}</p>
                               <p className="text-[10px] opacity-75">Resource Attachment</p>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => alert(`Downloading attachment: ${msg.attachmentName}`)}
-                              className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 shrink-0 cursor-pointer"
-                            >
-                              <Download className="w-4 h-4" />
-                            </button>
+                            {msg.attachmentType && (
+                              <button
+                                type="button"
+                                onClick={() => window.open(msg.attachmentType, '_blank')}
+                                className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-indigo-650 dark:hover:text-indigo-400 shrink-0 cursor-pointer"
+                              >
+                                <Download className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         )}
                         <div className="flex items-center gap-1 mt-1 px-1">
@@ -488,9 +504,11 @@ export const Messaging = ({ currentUser, initialSelectedUser }) => {
                     type="file"
                     ref={fileInputRef}
                     className="hidden"
+                    accept=".pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg"
                     onChange={e => {
                       if (e.target.files && e.target.files[0]) {
-                        setAttachment({ name: e.target.files[0].name, type: e.target.files[0].type });
+                        const fileObj = e.target.files[0];
+                        setAttachment({ name: fileObj.name, type: fileObj.type, file: fileObj });
                       }
                     }}
                   />

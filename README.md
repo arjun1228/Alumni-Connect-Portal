@@ -1,20 +1,23 @@
-<div align="center">
+﻿<div align="center">
 
 # 🎓 AlumniConnect Portal
 
 ### A Modern Alumni–Student Networking & Career Mentorship Platform
 
-[![React Vite](https://img.shields.io/badge/React_Vite-%2320232a.svg?style=flat&logo=react&logoColor=%2361DAFB)](https://react.dev/)
-[![Node.js Express](https://img.shields.io/badge/Node.js_Express-%23339933.svg?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React_19-%2320232a.svg?style=flat&logo=react&logoColor=%2361DAFB)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-%23646CFF.svg?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js_Express-%23339933.svg?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 [![MongoDB Atlas](https://img.shields.io/badge/MongoDB_Atlas-%2347A248.svg?style=flat&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS_v4-%2338B2AC.svg?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Groq AI](https://img.shields.io/badge/Groq_AI_Llama_3.3-%23FF6B35.svg?style=flat&logo=meta&logoColor=white)](https://groq.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-%2338B2AC.svg?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![JWT Auth](https://img.shields.io/badge/JWT_Auth-%23000000.svg?style=flat&logo=jsonwebtokens&logoColor=white)](#-getting-started)
-[![Offline Fallback](https://img.shields.io/badge/Offline_Fallback-JSON_DB-%23F7DF1E.svg?style=flat&logo=json&logoColor=black)](#-database-mode-auto-switching)
+[![Cloudinary](https://img.shields.io/badge/Cloudinary-%233448C5.svg?style=flat&logo=cloudinary&logoColor=white)](https://cloudinary.com/)
+[![JWT Auth](https://img.shields.io/badge/JWT_Auth-%23000000.svg?style=flat&logo=jsonwebtokens&logoColor=white)](#-authentication)
+[![Google OAuth](https://img.shields.io/badge/Google_OAuth_2.0-%234285F4.svg?style=flat&logo=google&logoColor=white)](#-google-oauth)
+[![Vercel](https://img.shields.io/badge/Deployed_on_Vercel-%23000000.svg?style=flat&logo=vercel&logoColor=white)](https://vercel.com/)
 
-A high-performance, full-stack MERN platform designed to bridge the gap between **Students**, **Alumni**, and **Administrators**. Supports real-time messaging, job postings, event management, academic calendars, and an AI-powered career coaching feature backed by **Llama 3.3 70B via Groq Cloud**.
+A high-performance, full-stack **MERN** platform designed to bridge the gap between **Students**, **Alumni**, and **Administrators**. Features real-time messaging, job postings, event management, academic calendars, file/resume attachments via **Cloudinary**, and an **AI-powered career coaching** feature backed by **Llama 3.3 70B via Groq Cloud**.
 
-[Features](#-key-features) · [Roles & Permissions](#-roles--permissions-matrix) · [Project Structure](#-project-structure) · [Database Models](#️-database-models) · [API Endpoints](#-api-endpoints) · [Getting Started](#-getting-started)
+[Features](#-key-features) · [Tech Stack](#-tech-stack) · [Roles & Permissions](#-roles--permissions-matrix) · [Project Structure](#-project-structure) · [Database Models](#-database-models) · [API Endpoints](#-api-endpoints) · [Getting Started](#-getting-started) · [Deployment](#-deployment)
 
 </div>
 
@@ -22,53 +25,102 @@ A high-performance, full-stack MERN platform designed to bridge the gap between 
 
 ## ✨ Key Features
 
-### 👥 Role-Based Access Control (RBAC)
-Tailored dashboards and capabilities for **Students**, **Alumni**, and **Admins**, each with distinct permissions enforced by JWT middleware on every protected route.
+### 🔐 Secure Authentication & Google OAuth
+- **JWT-based sessions** with role claims stored in HTTP-only cookies.
+- **Google OAuth 2.0** login integration — sign in with your Google account in one click.
+- **Email verification** flow for newly registered users (`VerifyEmail.jsx`).
+- Middleware enforces authentication (`authenticate.js`) and role guards (`authorize.js`) on every protected route.
 
-### 💬 Real-Time Instant Messaging
-Persistent, thread-based direct messaging between any two users on the platform, with conversation history stored in MongoDB and served through a RESTful API.
+### 👥 Role-Based Access Control (RBAC)
+Tailored dashboards and feature access for three distinct roles: **Students**, **Alumni**, and **Admins** — each with strictly enforced permissions across both the frontend and backend.
+
+### 💬 Real-Time Direct Messaging
+- Persistent, thread-based direct messaging between any two users on the platform.
+- Conversation history stored in MongoDB and served via a RESTful API.
+- **File & resume attachments** supported in the chat workspace — users can send files (e.g., resumes, documents) as message attachments, stored via Cloudinary.
+- Unread message badges and conversation list with latest message preview.
 
 ### 📢 Community Feed & Posts
-Alumni and students can publish posts, share updates, and engage with the community feed. Admins can pin important announcements and moderate content directly from community views.
+- Alumni and students can publish posts, share updates, and engage with the community feed.
+- **AI-Powered Content Enhancement** — a "Groq AI Assist" button in the post composer to refine and elevate draft content instantly.
+- Post **likes**, **comments**, and **image attachments** supported.
+- Admins can **pin** important announcements and **delete** any post for moderation.
+- **Shareable single-post routing** — each post has a unique shareable URL via `PostView`.
 
 ### 💼 Job Listings & Applications
-Alumni can post full-time job opportunities. Students can browse listings and submit applications — all managed through a dedicated jobs module with application tracking.
+- Alumni can post full-time, part-time, and internship job opportunities.
+- Students can browse listings and submit applications with **resume/file uploads**.
+- Full application tracking with status management (`pending`, `reviewed`, `accepted`, `rejected`).
+- Alumni can manage their own postings (edit, activate/deactivate, delete).
 
 ### 🎟️ Events & Workshop Management
-Alumni can create and host workshops or networking events. Students can register interest, and all users can browse upcoming events via an interactive event calendar.
+- Alumni can create and host workshops, networking events, and seminars.
+- Students can register their interest for upcoming events.
+- All users can browse an interactive event calendar.
+- Admin controls for event moderation and management.
 
 ### 📅 Academic Calendar
-A dedicated academic calendar for students to track key institutional dates, deadlines, and schedule entries, stored per-user in MongoDB.
+- A dedicated academic calendar for students to track institutional key dates, deadlines, and personal schedule entries.
+- Calendar entries stored per-user in MongoDB.
+- Categorised by type: `exam`, `deadline`, `holiday`, etc.
 
-### 🤖 AI Career Mentor (Groq Llama 3.3)
-A backend-routed AI coaching assistant powered by **Llama 3.3 70B** via Groq Cloud SDK. Supports:
-- **Resume Analysis** — Structured feedback on CV content and formatting.
-- **Interview Coaching** — Mock Q&A and behavioral question prep.
+### 🤖 AI Career Mentor (Groq Llama 3.3 70B)
+A backend-routed AI coaching assistant powered by **Llama 3.3 70B** via Groq Cloud SDK, accessible from the AI Coach page:
+- **Resume Analysis** — Structured, actionable feedback on CV content and formatting.
+- **Interview Coaching** — Mock Q&A and behavioural question preparation.
 - **Skill-Gap Roadmap** — Personalised learning paths based on career goals.
+- **General Career Advice** — Open-ended mentorship conversations.
+
+### 👥 Alumni Directory & Networking
+- Browse and search a directory of all alumni on the platform.
+- Filter by graduation year, company, job title, and skills.
+- Initiate direct messaging with any alumni from their directory card.
+
+### 🖼️ Cloudinary Media Storage
+- All uploaded files (profile avatars, post images, job attachments, chat files, resumes) are stored in **Cloudinary** — not on the local filesystem.
+- Automatic URL generation for each uploaded asset.
+- Supports images, PDFs, and general documents.
 
 ### 🗄️ Offline / Hybrid Database Fallback
-If MongoDB Atlas is unreachable or no `MONGO_URI` is configured, the server automatically switches to a local `backend/data.json` flat-file database, seeding default data on first run — zero configuration required for local development.
+- If MongoDB Atlas is unreachable or `MONGO_URI` is not configured, the server automatically switches to a local `backend/data.json` flat-file database.
+- Seeds default data on first run — zero configuration required for quick local development.
 
-### 🔐 Secure Authentication
-JWT-based sessions with role claims. Middleware enforces authentication (`authenticate.js`) and role guards (`authorize.js`) on all protected endpoints.
+### 📊 Admin Dashboard & Analytics
+- Full **user management**: view all users, suspend or reactivate accounts.
+- **Platform analytics**: live statistics — total users, posts, jobs, events, active students, and alumni mentors. Statistics update dynamically as new users register.
+- **Admin action audit log**: every admin action is recorded in `AdminLog`.
+- Admins can message any platform user directly from the dashboard.
 
-### 📁 Media Upload Support
-Image and file uploads handled via a dedicated upload service (`mediaUpload.js`), with files stored in the `backend/uploads/` directory.
+### 🔔 Toast Notification System
+- Global, fluent toast notifications for all key events: authentication, post interactions, job operations, calendar additions, event registrations, and messaging.
 
-### 🪄 AI-Powered Content Enhancement
-Integrates a "Groq AI Assist" text enhancer directly in the community post composer to refine drafts and elevate content quality instantly.
+### 📝 Enhanced Profiles
+- Students: detailed academic info, skills, bio, and avatar.
+- Alumni: company, job title, graduation year, mentoring domains, and bio.
+- Profile photos uploaded to Cloudinary.
 
-### 🔗 Shareable Single-Post Routing
-Direct link sharing and custom detail views (`PostView`) for community posts to enhance searchability and networking opportunities.
+### 🌗 Dark Mode Support
+- Full light/dark theme toggle available throughout the application.
+- Implemented via Tailwind CSS v4 dark mode utilities.
 
-### 🔔 Interactive Toast Notifications
-Fluent global toast notifications for key events like authentication status changes, post interactions, job operations, calendar additions, and event registrations.
+---
 
-### 📝 Enhanced Profiles & Mentorship Fields
-Allows student users to manage detailed academic details and alumni to display mentoring domains/topics directly in their profiles.
+## 🛠️ Tech Stack
 
-### 💬 Direct Admin Communication
-Enables administrators to message platform users directly from the Admin Dashboard to support moderation and facilitate platform updates.
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend Framework** | React 19 + Vite |
+| **Styling** | Tailwind CSS v4 + Custom CSS |
+| **Icons** | Lucide React |
+| **HTTP Client** | Axios |
+| **Backend Framework** | Node.js + Express.js |
+| **Database (Primary)** | MongoDB Atlas (Mongoose ODM) |
+| **Database (Fallback)** | Local JSON flat-file (`backend/data.json`) |
+| **Authentication** | JWT (HTTP-only cookies) + Google OAuth 2.0 (Passport.js) |
+| **AI / LLM** | Groq Cloud SDK — Llama 3.3 70B Versatile |
+| **Media Storage** | Cloudinary (images, files, resumes, avatars) |
+| **Deployment** | Vercel (frontend SPA + backend) |
+| **Runtime** | Node.js v18+ |
 
 ---
 
@@ -76,244 +128,280 @@ Enables administrators to message platform users directly from the Admin Dashboa
 
 | Feature / Page | Student | Alumni | Admin |
 | :--- | :---: | :---: | :---: |
-| **Auth (Login / Register)** | ✅ | ✅ | ✅ |
-| **Community Feed** | ✅ (View & Post) | ✅ (View & Post) | ✅ (Pin & Delete) |
-| **Alumni Directory** | ✅ (Browse) | ✅ (Browse) | ✅ |
-| **Job Listings** | ✅ (View & Apply) | ✅ (Post & View) | ✅ |
-| **Events & Workshops** | ✅ (View & Register) | ✅ (Create & View) | ✅ |
-| **Direct Messaging** | ✅ | ✅ | ✅ |
+| **Auth (Login / Register / Google OAuth)** | ✅ | ✅ | ✅ |
+| **Landing Page** | ✅ | ✅ | ✅ |
+| **Community Feed** (View & Post) | ✅ | ✅ | ✅ |
+| **Community Feed** (Pin & Delete any post) | ❌ | ❌ | ✅ |
+| **Alumni Directory** | ✅ | ✅ | ✅ |
+| **Job Listings** (View & Apply) | ✅ | ✅ | ✅ |
+| **Job Listings** (Post & Manage) | ❌ | ✅ | ✅ |
+| **Events & Workshops** (View & Register) | ✅ | ✅ | ✅ |
+| **Events & Workshops** (Create & Manage) | ❌ | ✅ | ✅ |
+| **Direct Messaging** (with file attachments) | ✅ | ✅ | ✅ |
 | **Academic Calendar** | ✅ | ✅ | ✅ |
 | **AI Career Mentor** | ✅ | ✅ | ✅ |
-| **Profile Management** | ✅ (Own Profile) | ✅ (Own Profile) | ✅ |
+| **Profile Management** (Own Profile) | ✅ | ✅ | ✅ |
 | **Admin Dashboard** | ❌ | ❌ | ✅ |
-| **User Management** | ❌ | ❌ | ✅ (Suspend / Reactivate) |
+| **User Management** (Suspend / Reactivate) | ❌ | ❌ | ✅ |
 | **Platform Analytics** | ❌ | ❌ | ✅ |
+| **Admin Audit Logs** | ❌ | ❌ | ✅ |
 
 ---
 
 ## 📂 Project Structure
 
-```text
-alumniconnect-portal/
-├── package.json                  # Root workspace scripts (install:all, dev)
-│
-├── backend/
-│   ├── config/                   # DB connection & environment constants
-│   ├── controllers/              # Business logic handlers
-│   │   ├── admin.controller.js   # User management, analytics, moderation
-│   │   ├── auth.controller.js    # Register, login, logout, JWT issuance
-│   │   ├── calendar.controller.js# Academic calendar CRUD
-│   │   ├── directory.controller.js# Alumni directory queries
-│   │   ├── events.controller.js  # Event creation, registration, management
-│   │   ├── jobs.controller.js    # Job postings & application handling
-│   │   ├── mentor.controller.js  # Groq AI career mentor orchestration
-│   │   ├── messages.controller.js# Direct messaging threads & history
-│   │   └── posts.controller.js   # Community feed posts, pins, deletion
-│   ├── middleware/
-│   │   ├── authenticate.js       # JWT verification middleware
-│   │   ├── authorize.js          # Role-based access guard
-│   │   └── errorHandler.js       # Centralised error response handler
-│   ├── models/                   # Mongoose schemas
-│   │   ├── AdminLog.js           # Admin action audit log
-│   │   ├── CalendarEvent.js      # Academic calendar entries
-│   │   ├── Event.js              # Platform events & workshops
-│   │   ├── Job.js                # Job listings
-│   │   ├── JobApplication.js     # Student job applications
-│   │   ├── Message.js            # Direct messages
-│   │   ├── Post.js               # Community feed posts
-│   │   └── User.js               # Core user schema (Student / Alumni / Admin)
-│   ├── routes/                   # Express API routers
-│   │   ├── admin.routes.js
-│   │   ├── auth.routes.js
-│   │   ├── calendar.routes.js
-│   │   ├── directory.routes.js
-│   │   ├── events.routes.js
-│   │   ├── jobs.routes.js
-│   │   ├── mentor.routes.js
-│   │   ├── messages.routes.js
-│   │   ├── posts.routes.js
-│   │   ├── upload.routes.js
-│   │   └── users.routes.js
-│   ├── services/
-│   │   ├── dataStore.js          # Offline JSON flat-file DB service
-│   │   ├── groqService.js        # Groq Cloud SDK wrapper (Llama 3.3)
-│   │   └── mediaUpload.js        # File & image upload handler
-│   ├── utils/                    # Shared utility helpers
-│   ├── uploads/                  # Local media upload storage
-│   ├── migrate.js                # Database migration script
-│   ├── seed.js                   # Default data seeder
-│   ├── syncOfflineData.js        # Offline <-> Online data sync utility
-│   └── server.js                 # Express app entry point & route mounting
-│
-└── frontend/
-    ├── index.html                # Vite HTML shell
-    ├── index.css                 # Global styles & Tailwind CSS imports
-    ├── index.jsx                 # React bootstrapper & Axios defaults
-    ├── App.jsx                   # Root router & protected route guards
-    ├── types.js                  # Shared JS type constants
-    ├── vite.config.js            # Vite build configuration
-    ├── components/               # Feature page components
-    │   ├── AuthScreen.jsx        # Login & registration UI
-    │   ├── Feed.jsx              # Community feed & post creation
-    │   ├── Profile.jsx           # User profile view & editor
-    │   ├── Network.jsx           # Alumni directory & connection browsing
-    │   ├── Jobs.jsx              # Job listings & application flow
-    │   ├── Events.jsx            # Events browser & registration
-    │   ├── Messaging.jsx         # Real-time direct messaging UI
-    │   ├── AcademicCalendar.jsx  # Academic calendar & schedule manager
-    │   ├── AICoach.jsx           # AI Career Mentor chat interface
-    │   ├── AdminDashboard.jsx    # Admin control panel
-    │   ├── Analytics.jsx         # Platform usage analytics charts
-    │   ├── PostView.jsx          # Single post detail view
-    │   └── Toast.jsx             # Global toast notification system
-    ├── services/
-    │   └── api.js                # Centralised Axios API client & all endpoint calls
-    └── data/                     # Static / seed data assets
+```
+Alumni-Interaction-Portal/
+|
++-- backend/
+|   +-- config/
+|   |   +-- db.js                    # MongoDB Atlas connection logic
+|   +-- controllers/
+|   |   +-- admin.controller.js      # User management, analytics, moderation
+|   |   +-- auth.controller.js       # Register, login, logout, Google OAuth, JWT issuance
+|   |   +-- calendar.controller.js   # Academic calendar CRUD
+|   |   +-- directory.controller.js  # Alumni directory queries
+|   |   +-- events.controller.js     # Event creation, registration, management
+|   |   +-- jobs.controller.js       # Job postings & application handling
+|   |   +-- mentor.controller.js     # Groq AI career mentor orchestration
+|   |   +-- messages.controller.js   # Direct messaging threads & history
+|   |   +-- posts.controller.js      # Community feed posts, pins, deletion
+|   +-- middleware/
+|   |   +-- authenticate.js          # JWT verification middleware
+|   |   +-- authorize.js             # Role-based access guard
+|   |   +-- errorHandler.js          # Centralised error response handler
+|   +-- models/
+|   |   +-- AdminLog.js              # Admin action audit log
+|   |   +-- CalendarEvent.js         # Academic calendar entries
+|   |   +-- Event.js                 # Platform events & workshops
+|   |   +-- Job.js                   # Job listings
+|   |   +-- JobApplication.js        # Student job applications
+|   |   +-- Message.js               # Direct messages (with file attachment support)
+|   |   +-- Post.js                  # Community feed posts
+|   |   +-- User.js                  # Core user schema (Student / Alumni / Admin)
+|   +-- routes/
+|   |   +-- admin.routes.js
+|   |   +-- auth.routes.js           # Includes Google OAuth routes
+|   |   +-- calendar.routes.js
+|   |   +-- directory.routes.js
+|   |   +-- events.routes.js
+|   |   +-- jobs.routes.js
+|   |   +-- mentor.routes.js
+|   |   +-- messages.routes.js
+|   |   +-- posts.routes.js
+|   |   +-- upload.routes.js         # Cloudinary upload endpoint
+|   |   +-- users.routes.js
+|   +-- services/
+|   |   +-- dataStore.js             # Offline JSON flat-file DB service
+|   |   +-- groqService.js           # Groq Cloud SDK wrapper (Llama 3.3 70B)
+|   |   +-- mediaUpload.js           # Cloudinary file & image upload handler
+|   +-- utils/                       # Shared utility helpers
+|   +-- uploads/                     # Temporary local upload buffer
+|   +-- migrate.js                   # Database migration script
+|   +-- seed.js                      # Default data seeder
+|   +-- syncOfflineData.js           # Offline <-> Online data sync utility
+|   +-- server.js                    # Express app entry point & route mounting
+|   +-- .env.example                 # Environment variable template
+|   +-- .env.local                   # Local environment variables (gitignored)
+|
++-- frontend/
+    +-- index.html                   # Vite HTML shell
+    +-- index.css                    # Global styles & Tailwind CSS v4 imports
+    +-- index.jsx                    # React bootstrapper & Axios defaults
+    +-- App.jsx                      # Root router & protected route guards
+    +-- types.js                     # Shared JS type constants
+    +-- vite.config.js               # Vite build configuration
+    +-- vercel.json                  # Vercel SPA rewrite rules
+    +-- components/
+    |   +-- LandingPage.jsx          # Public landing page with animations
+    |   +-- AuthScreen.jsx           # Login, registration & Google OAuth UI
+    |   +-- VerifyEmail.jsx          # Email verification flow
+    |   +-- Feed.jsx                 # Community feed & AI-enhanced post creation
+    |   +-- Profile.jsx              # User profile view & editor
+    |   +-- Network.jsx              # Alumni directory & connection browsing
+    |   +-- Jobs.jsx                 # Job listings & application flow
+    |   +-- Events.jsx               # Events browser & registration
+    |   +-- Messaging.jsx            # Direct messaging UI with file attachments
+    |   +-- AcademicCalendar.jsx     # Academic calendar & schedule manager
+    |   +-- AICoach.jsx              # AI Career Mentor chat interface
+    |   +-- AdminDashboard.jsx       # Admin control panel
+    |   +-- Analytics.jsx            # Platform usage analytics charts
+    |   +-- PostView.jsx             # Single post detail view (shareable URL)
+    |   +-- Logo.jsx                 # App logo component
+    |   +-- ScrollReveal.jsx         # Scroll-triggered animation wrapper
+    |   +-- SearchInput.jsx          # Reusable search input component
+    |   +-- Toast.jsx                # Global toast notification system
+    +-- services/
+    |   +-- api.js                   # Centralised Axios API client & all endpoint calls
+    +-- data/                        # Static / seed data assets
 ```
 
 ---
 
-## 🗄️ Database Models (`backend/models/`)
+## 🗄️ Database Models
 
-### 👤 User (`User.js`)
-- `name` (String, required): Full display name.
-- `email` (String, required, unique): Account email address.
-- `password` (String, required, minlength: 6): Bcrypt-hashed credential.
-- `role` (String, enum: `['student', 'alumni', 'admin']`, default: `'student'`).
-- `graduationYear` (Number): Year of graduation (alumni).
-- `company` / `jobTitle` (String): Current employer details (alumni).
-- `bio` / `skills` / `avatar` (String): Profile enrichment fields.
-- `isActive` (Boolean, default: `true`): Admin suspension flag.
+### User
+| Field | Type | Details |
+| :--- | :--- | :--- |
+| `name` | String | Full display name (required) |
+| `email` | String | Account email address (required, unique) |
+| `password` | String | Bcrypt-hashed credential |
+| `role` | String | `student` / `alumni` / `admin` |
+| `graduationYear` | Number | Year of graduation (alumni) |
+| `company` / `jobTitle` | String | Current employer details (alumni) |
+| `bio` / `skills` | String | Profile enrichment fields |
+| `avatar` | String | Cloudinary URL of profile photo |
+| `isActive` | Boolean | Admin suspension flag |
+| `isVerified` | Boolean | Email verification status |
+| `googleId` | String | Google OAuth ID |
+| `mentorDomains` | Array | Alumni mentoring topics |
 
-### 📝 Post (`Post.js`)
-- `author` (ObjectId → User): Post creator reference.
-- `content` (String, required): Post body text.
-- `image` (String): Optional media attachment URL.
-- `likes` (Array of ObjectId): Users who liked the post.
-- `comments` (Array): Embedded comment objects with author & text.
-- `isPinned` (Boolean, default: `false`): Admin pin flag.
-- `createdAt` (Date): Auto-generated timestamp.
+### Post
+| Field | Type | Details |
+| :--- | :--- | :--- |
+| `author` | ObjectId | Post creator reference |
+| `content` | String | Post body text (required) |
+| `image` | String | Cloudinary URL of media attachment |
+| `likes` | Array | Users who liked the post |
+| `comments` | Array | Embedded comment objects |
+| `isPinned` | Boolean | Admin pin flag |
 
-### 💼 Job (`Job.js`)
-- `postedBy` (ObjectId → User): Alumni who created the listing.
-- `title` / `company` / `location` (String, required): Core listing fields.
-- `description` / `requirements` (String): Full job details.
-- `type` (String, enum: `['full-time', 'part-time', 'internship']`).
-- `isActive` (Boolean): Controls listing visibility.
+### Message
+| Field | Type | Details |
+| :--- | :--- | :--- |
+| `sender` / `receiver` | ObjectId | Conversation parties |
+| `content` | String | Message body text |
+| `fileUrl` | String | Cloudinary URL of attached file |
+| `fileName` | String | Original filename |
+| `fileType` | String | MIME type of attachment |
+| `read` | Boolean | Read receipt flag |
 
-### 🎟️ Event (`Event.js`)
-- `createdBy` (ObjectId → User): Event organiser reference.
-- `title` / `description` / `location` (String, required): Event details.
-- `date` (Date, required): Event date and time.
-- `registrations` (Array of ObjectId): Registered user references.
-- `maxAttendees` (Number): Capacity cap.
+### Job
+| Field | Type | Details |
+| :--- | :--- | :--- |
+| `postedBy` | ObjectId | Alumni who created the listing |
+| `title` / `company` / `location` | String | Core listing fields |
+| `type` | String | `full-time` / `part-time` / `internship` |
+| `isActive` | Boolean | Controls listing visibility |
 
-### 💬 Message (`Message.js`)
-- `sender` / `receiver` (ObjectId → User): Conversation parties.
-- `content` (String, required): Message body.
-- `read` (Boolean, default: `false`): Read receipt flag.
-- `createdAt` (Date): Auto-generated timestamp.
+### JobApplication
+| Field | Type | Details |
+| :--- | :--- | :--- |
+| `job` | ObjectId | Applied-to listing |
+| `applicant` | ObjectId | Applying student |
+| `resumeUrl` | String | Cloudinary URL of uploaded resume |
+| `status` | String | `pending` / `reviewed` / `accepted` / `rejected` |
 
-### 📅 CalendarEvent (`CalendarEvent.js`)
-- `user` (ObjectId → User): Owning student reference.
-- `title` (String, required): Event name.
-- `date` (Date, required): Scheduled date.
-- `type` (String): Category tag (e.g. `exam`, `deadline`, `holiday`).
+### Event
+| Field | Type | Details |
+| :--- | :--- | :--- |
+| `createdBy` | ObjectId | Event organiser |
+| `title` / `description` / `location` | String | Event details |
+| `date` | Date | Event date and time |
+| `registrations` | Array | Registered user references |
+| `maxAttendees` | Number | Capacity cap |
 
-### 💼 JobApplication (`JobApplication.js`)
-- `job` (ObjectId → Job): Applied-to listing.
-- `applicant` (ObjectId → User): Applying student.
-- `status` (String, enum: `['pending', 'reviewed', 'accepted', 'rejected']`).
-- `appliedAt` (Date): Application timestamp.
+### CalendarEvent
+| Field | Type | Details |
+| :--- | :--- | :--- |
+| `user` | ObjectId | Owning student reference |
+| `title` | String | Event name |
+| `date` | Date | Scheduled date |
+| `type` | String | `exam` / `deadline` / `holiday` etc. |
 
-### 📋 AdminLog (`AdminLog.js`)
-- `admin` (ObjectId → User): Admin who performed the action.
-- `action` (String): Description of the operation performed.
-- `target` (ObjectId): Affected resource reference.
-- `createdAt` (Date): Audit timestamp.
+### AdminLog
+| Field | Type | Details |
+| :--- | :--- | :--- |
+| `admin` | ObjectId | Admin who performed the action |
+| `action` | String | Description of the operation |
+| `target` | ObjectId | Affected resource reference |
 
 ---
 
-## 🔌 API Endpoints (`backend/routes/`)
+## 🔌 API Endpoints
 
-### 🔐 Auth (`/api/auth`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/register` | Create a new user account |
-| `POST` | `/login` | Authenticate and receive a JWT cookie |
-| `POST` | `/logout` | Clear the session cookie |
-| `GET` | `/me` | Get the currently authenticated user |
+### Auth (`/api/auth`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `POST` | `/register` | No | Create a new user account |
+| `POST` | `/login` | No | Authenticate and receive a JWT cookie |
+| `POST` | `/logout` | Yes | Clear the session cookie |
+| `GET` | `/me` | Yes | Get the currently authenticated user |
+| `GET` | `/google` | No | Initiate Google OAuth 2.0 login |
+| `GET` | `/google/callback` | No | Google OAuth callback handler |
+| `POST` | `/verify-email` | No | Verify email with token |
 
-### 📢 Posts (`/api/posts`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/` | Fetch all community feed posts |
-| `POST` | `/` | Create a new post |
-| `PUT` | `/:id/like` | Toggle like on a post |
-| `POST` | `/:id/comment` | Add a comment to a post |
-| `DELETE` | `/:id` | Delete a post (author or admin) |
-| `PUT` | `/:id/pin` | Pin/unpin a post (admin only) |
+### Posts (`/api/posts`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `GET` | `/` | Yes | Fetch all community feed posts |
+| `POST` | `/` | Yes | Create a new post |
+| `PUT` | `/:id/like` | Yes | Toggle like on a post |
+| `POST` | `/:id/comment` | Yes | Add a comment |
+| `DELETE` | `/:id` | Yes | Delete a post (author or admin) |
+| `PUT` | `/:id/pin` | Admin | Pin/unpin a post |
+| `GET` | `/:id` | Yes | Get a single post by ID |
 
-### 💼 Jobs (`/api/jobs`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/` | List all active job postings |
-| `POST` | `/` | Create a job listing (alumni only) |
-| `PUT` | `/:id` | Update a listing (poster only) |
-| `DELETE` | `/:id` | Remove a listing |
-| `POST` | `/:id/apply` | Submit a job application (student only) |
+### Jobs (`/api/jobs`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `GET` | `/` | Yes | List all active job postings |
+| `POST` | `/` | Alumni | Create a job listing |
+| `PUT` | `/:id` | Alumni | Update a listing |
+| `DELETE` | `/:id` | Alumni | Remove a listing |
+| `POST` | `/:id/apply` | Student | Submit a job application |
 
-### 🎟️ Events (`/api/events`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/` | List all events |
-| `POST` | `/` | Create an event (alumni only) |
-| `PUT` | `/:id` | Update an event |
-| `DELETE` | `/:id` | Delete an event |
-| `POST` | `/:id/register` | Register interest for an event |
+### Events (`/api/events`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `GET` | `/` | Yes | List all events |
+| `POST` | `/` | Alumni | Create an event |
+| `PUT` | `/:id` | Alumni | Update an event |
+| `DELETE` | `/:id` | Alumni | Delete an event |
+| `POST` | `/:id/register` | Yes | Register for an event |
 
-### 💬 Messages (`/api/messages`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/conversations` | Get all conversations for the current user |
-| `GET` | `/:userId` | Fetch message history with a specific user |
-| `POST` | `/` | Send a new direct message |
+### Messages (`/api/messages`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `GET` | `/conversations` | Yes | Get all conversations |
+| `GET` | `/:userId` | Yes | Fetch message history with a user |
+| `POST` | `/` | Yes | Send a new direct message |
 
-### 📅 Calendar (`/api/calendar`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/` | Get calendar events for the current user |
-| `POST` | `/` | Create a new calendar entry |
-| `DELETE` | `/:id` | Remove a calendar entry |
+### Calendar (`/api/calendar`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `GET` | `/` | Yes | Get calendar events for current user |
+| `POST` | `/` | Yes | Create a new calendar entry |
+| `DELETE` | `/:id` | Yes | Remove a calendar entry |
 
-### 🤖 AI Mentor (`/api/mentor`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/chat` | Send a prompt to the Groq Llama 3.3 AI mentor |
+### AI Mentor (`/api/mentor`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `POST` | `/chat` | Yes | Send a prompt to Groq Llama 3.3 |
 
-### 🛠️ Admin (`/api/admin`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/users` | List all platform users |
-| `PUT` | `/users/:id/suspend` | Suspend or reactivate a user account |
-| `GET` | `/logs` | Fetch admin action audit logs |
-| `GET` | `/analytics` | Get platform-wide usage statistics |
+### Admin (`/api/admin`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `GET` | `/users` | Admin | List all platform users |
+| `PUT` | `/users/:id/suspend` | Admin | Suspend or reactivate a user |
+| `GET` | `/logs` | Admin | Fetch admin audit logs |
+| `GET` | `/analytics` | Admin | Get live platform statistics |
 
-### 👥 Directory (`/api/directory`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/` | Browse the alumni directory |
+### Directory (`/api/directory`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `GET` | `/` | Yes | Browse the alumni directory |
 
-### 👤 Users (`/api/users`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/:id` | Get a user's public profile |
-| `PUT` | `/:id` | Update profile details |
+### Users (`/api/users`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `GET` | `/:id` | Yes | Get a user public profile |
+| `PUT` | `/:id` | Yes | Update profile details |
 
-### 📁 Upload (`/api/upload`)
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `POST` | `/` | Upload an image or file attachment |
+### Upload (`/api/upload`)
+| Method | Endpoint | Auth | Description |
+| :--- | :--- | :---: | :--- |
+| `POST` | `/` | Yes | Upload an image or file to Cloudinary |
 
 ---
 
@@ -321,8 +409,10 @@ alumniconnect-portal/
 
 ### Prerequisites
 - **Node.js** v18 or higher
-- **Groq Cloud API Key** — required for AI Career Mentor features ([get one free](https://console.groq.com/))
-- **MongoDB Atlas URI** — optional; the app auto-falls back to a local JSON database if omitted
+- **Groq Cloud API Key** — required for AI Career Mentor ([get one free](https://console.groq.com/))
+- **MongoDB Atlas URI** — optional; app auto-falls back to local JSON if omitted
+- **Cloudinary Account** — required for media/file uploads ([free tier available](https://cloudinary.com/))
+- **Google Cloud OAuth 2.0 Credentials** — optional; required only for Google login
 
 ### 1. Clone & Install
 
@@ -334,24 +424,28 @@ npm run install:all
 
 ### 2. Environment Variables
 
-#### Backend (`backend/.env.local`):
-```env
+**Backend** (`backend/.env.local`):
+```
 PORT=5000
 JWT_SECRET=your_32_character_long_jwt_secret_key_here
 GROQ_API_KEY=your_groq_api_key_here
-
-# Optional — omit to run in offline local JSON fallback mode
 MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/alumniconnect
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+BACKEND_URL=http://localhost:5000
+FRONTEND_URL=http://localhost:3000
 ```
 
-#### Frontend (`frontend/.env.local`):
-```env
+**Frontend** (`frontend/.env.local`):
+```
 VITE_API_URL=http://localhost:5000/api
 ```
 
 ### 3. Run the Application
 
-Start both the backend server and the Vite dev server concurrently:
 ```bash
 npm run dev
 ```
@@ -363,22 +457,114 @@ npm run dev
 
 ---
 
-
-
 ## 💡 Database Mode Auto-Switching
 
-If `MONGO_URI` is not set or MongoDB Atlas is unreachable, the server automatically switches to offline mode:
+If `MONGO_URI` is not set or MongoDB Atlas is unreachable:
 
 ```
-⚠️ MongoDB connection failed. Switching to Local JSON file mode.
+Warning: MongoDB connection failed. Switching to Local JSON file mode.
 ```
 
-The `backend/services/dataStore.js` service seeds and manages `backend/data.json` transparently — no extra configuration needed for local development.
+The `backend/services/dataStore.js` service seeds and manages `backend/data.json` transparently.
 
-> [!WARNING]
-> **Production Scalability Notice**: The local offline JSON fallback database (`backend/data.json`) uses synchronous filesystem writes and memory operations. It is designed **solely for quick offline local testing and development purposes**. It is not suitable for concurrent production use. For any testing under concurrent load, production staging, or real deployment, a proper MongoDB database (such as MongoDB Atlas) must be configured using the `MONGO_URI` environment variable to ensure database locking, transaction consistency, and scalability.
-
+> **Warning**: The local offline JSON fallback is designed solely for quick local testing. For production, always configure a MongoDB Atlas URI.
 
 ---
 
+## ☁️ Cloudinary Integration
 
+All media is stored in **Cloudinary** via `backend/services/mediaUpload.js` using `multer` + the Cloudinary Node SDK.
+
+- Supported types: JPEG, PNG, GIF, WebP, PDF, DOC/DOCX, and general files.
+- Secure HTTPS URLs generated automatically for every upload.
+- Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in `backend/.env.local`.
+
+> **Note**: Use a scoped API key generated specifically for this app — do NOT use your account root key.
+
+---
+
+## 🔑 Google OAuth
+
+When a user clicks "Sign in with Google":
+1. Redirected to `/api/auth/google` → Google consent screen.
+2. After approval, Google calls `/api/auth/google/callback`.
+3. Backend creates or retrieves the user and issues a JWT cookie.
+4. User is redirected back to the frontend, fully logged in.
+
+Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `backend/.env.local` to enable.
+
+---
+
+## 🚢 Deployment
+
+The `frontend/vercel.json` configures SPA routing so React Router works on Vercel:
+
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
+**`vercel.json` must be present in the repo** — Vercel reads it from the repository to configure routing. Without it, all routes except `/` will 404 in production.
+
+### Steps
+1. Import the repository at [vercel.com/new](https://vercel.com/new).
+2. Set **Root Directory** to `frontend/` for the frontend deployment.
+3. Add all environment variables from `backend/.env.local` in Vercel project settings.
+4. Deploy the backend separately on Railway, Render, or another Vercel project.
+
+---
+
+## 📊 Live Statistics
+
+The Admin Analytics page shows **live, dynamic metrics** that update as users register:
+
+| Metric | Description |
+| :--- | :--- |
+| **Active Students** | Count of all active student accounts |
+| **Alumni Mentors** | Count of all verified alumni accounts |
+| **Total Posts** | Community feed post count |
+| **Job Listings** | Active job opportunity count |
+| **Events Hosted** | Total events created on the platform |
+| **Messages Sent** | Total direct messages exchanged |
+
+Fetched live from MongoDB via `/api/admin/analytics`.
+
+---
+
+## 🔒 Security
+
+- JWT tokens stored in HTTP-only cookies — not localStorage (prevents XSS).
+- Role-based middleware on every backend route.
+- Bcrypt password hashing (10 salt rounds).
+- `.env.local` files are gitignored — credentials never committed to source control.
+- Cloudinary API keys are scoped and never exposed to the frontend.
+
+---
+
+## 🙏 Built With
+
+| Technology | Purpose |
+| :--- | :--- |
+| [React 19](https://react.dev/) | Frontend UI library |
+| [Vite](https://vitejs.dev/) | Frontend build tool and dev server |
+| [Tailwind CSS v4](https://tailwindcss.com/) | Utility-first CSS framework |
+| [Lucide React](https://lucide.dev/) | Icon library |
+| [Express.js](https://expressjs.com/) | Backend web framework |
+| [Mongoose](https://mongoosejs.com/) | MongoDB ODM |
+| [Groq SDK](https://groq.com/) | AI / LLM API client (Llama 3.3 70B) |
+| [Cloudinary Node SDK](https://cloudinary.com/) | Media upload and storage |
+| [Passport.js](https://www.passportjs.org/) | Google OAuth 2.0 strategy |
+| [Multer](https://github.com/expressjs/multer) | Multipart file upload middleware |
+| [bcryptjs](https://github.com/dcodeIO/bcrypt.js) | Password hashing |
+| [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) | JWT signing and verification |
+
+---
+
+<div align="center">
+
+Made with love by [Arjun](https://github.com/arjun1228)
+
+</div>
