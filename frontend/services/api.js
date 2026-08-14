@@ -1,4 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+// Use relative /api path — routed through:
+// - Vite dev proxy (vite.config.js) → http://127.0.0.1:5000/api locally
+// - Vercel rewrites (vercel.json)   → https://alumniconnect-backend-u4dv.onrender.com/api in production
+// This eliminates cross-origin requests and all CORS issues entirely.
+const API_URL = '/api';
 import { INITIAL_POSTS, INITIAL_JOBS, INITIAL_EVENTS } from '../data/mockData';
 
 // Helper to retrieve JWT from localStorage
