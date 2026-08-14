@@ -37,37 +37,32 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Apply helmet security headers (configured to allow cross-origin resource sharing/loading if needed)
+// Apply helmet security headers (configured to allow cross-origin resource sharing/loading)
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// CORS setup — allow local dev + production Vercel frontend
-const rawFrontendUrl = (process.env.FRONTEND_URL || '').replace(/\/+$/, '').trim();
+// Robust CORS middleware allowing local dev, specified FRONTEND_URL, and any *.vercel.app deployment
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    const allowed = [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        process.env.FRONTEND_URL
+    ].filter(Boolean);
 
-const allowedOrigins = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    rawFrontendUrl
-].filter(Boolean);
+    if (!origin || allowed.includes(origin) || origin.endsWith('.vercel.app')) {
+        res.setHeader('Access-Control-Allow-Origin', origin || '*');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    }
 
-app.use(cors({
-    origin: (origin, callback) => {
-        // Allow requests with no origin (curl, Postman, server-to-server)
-        if (!origin) return callback(null, true);
-
-        const cleanOrigin = origin.replace(/\/+$/, '').trim();
-
-        // Direct match against whitelist or vercel.app preview/production subdomains for this project
-        if (allowedOrigins.includes(cleanOrigin) || cleanOrigin.endsWith('.vercel.app')) {
-            return callback(null, true);
-        }
-
-        console.error(`❌ CORS blocked origin: ${origin}`);
-        callback(new Error(`CORS: Origin ${origin} not allowed`));
-    },
-    credentials: true
-}));
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
 
 // General rate limiter for all API endpoints to prevent brute-force and DDoS
 const apiLimiter = rateLimit({
