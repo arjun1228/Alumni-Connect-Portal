@@ -37,27 +37,14 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 1. CORS middleware must run FIRST so OPTIONS preflight requests receive headers before rate limiters
-app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    const allowed = [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        process.env.FRONTEND_URL
-    ].filter(Boolean);
-
-    if (!origin || allowed.includes(origin) || origin.endsWith('.vercel.app')) {
-        res.setHeader('Access-Control-Allow-Origin', origin || '*');
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-    }
-
-    if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
-    }
-    next();
-});
+// 1. Standard CORS middleware using cors npm package (reflects incoming origin dynamically)
+app.use(cors({
+    origin: true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+app.options('*', cors());
 
 // Apply helmet security headers
 app.use(helmet({
