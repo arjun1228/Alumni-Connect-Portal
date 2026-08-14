@@ -57,7 +57,8 @@ const apiLimiter = rateLimit({
     max: 200, // Max 200 requests per IP
     message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes.' },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    skip: (req) => req.method === 'OPTIONS'
 });
 
 // Stricter rate limiter for authentication routes (signup, login) to slow down credential stuffing
@@ -66,7 +67,8 @@ const authLimiter = rateLimit({
     max: 15, // Max 15 attempts per IP
     message: { success: false, message: 'Too many authentication attempts, please try again after 15 minutes.' },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    skip: (req) => req.method === 'OPTIONS'
 });
 
 app.use('/api', apiLimiter);
