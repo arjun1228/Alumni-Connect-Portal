@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 🎓 AlumniConnect Portal
 
@@ -457,63 +457,52 @@ npm run dev
 
 ---
 
-## 💡 Database Mode Auto-Switching
+## 🗄️ Database Storage (MongoDB Atlas)
 
-If `MONGO_URI` is not set or MongoDB Atlas is unreachable:
-
-```
-Warning: MongoDB connection failed. Switching to Local JSON file mode.
-```
-
-The `backend/services/dataStore.js` service seeds and manages `backend/data.json` transparently.
-
-> **Warning**: The local offline JSON fallback is designed solely for quick local testing. For production, always configure a MongoDB Atlas URI.
+The platform stores all application data persistently in a **MongoDB** database (using **MongoDB Atlas** in production).
+- **Persistent Collections**: Core models like Users (Students, Alumni, Admins), Messages (Direct Chat), Posts (Community Feed), Jobs, Job Applications, Academic Calendars, Events, and Admin Logs are stored securely in MongoDB.
+- **Mongoose ODM**: Structured schemas and validation rules are defined using Mongoose models located in `backend/models/`.
+- **Hybrid Database Mode (Auto-Switching)**: If the `MONGO_URI` environment variable is not configured or MongoDB Atlas is unreachable, the system automatically falls back to a local JSON database file (`backend/data.json`) managed by `backend/services/dataStore.js`.
+  
+  > ⚠️ **Important**: The local JSON fallback mode is intended strictly for rapid local development and testing. For full production deployments, a MongoDB Atlas URI must be configured.
 
 ---
 
-## ☁️ Cloudinary Integration
+## 🚢 Deployment & Live Links
 
-All media is stored in **Cloudinary** via `backend/services/mediaUpload.js` using `multer` + the Cloudinary Node SDK.
+The platform is fully deployed and configured to run in production.
 
-- Supported types: JPEG, PNG, GIF, WebP, PDF, DOC/DOCX, and general files.
-- Secure HTTPS URLs generated automatically for every upload.
-- Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` in `backend/.env.local`.
+### 🔗 Production URLs
+- **Frontend SPA**: [https://alumni-interaction-portal.vercel.app](https://alumni-interaction-portal.vercel.app)
+- **Backend API (Render)**: [https://alumniconnect-backend-u44v.onrender.com](https://alumniconnect-backend-u44v.onrender.com)
 
-> **Note**: Use a scoped API key generated specifically for this app — do NOT use your account root key.
-
----
-
-## 🔑 Google OAuth
-
-When a user clicks "Sign in with Google":
-1. Redirected to `/api/auth/google` → Google consent screen.
-2. After approval, Google calls `/api/auth/google/callback`.
-3. Backend creates or retrieves the user and issues a JWT cookie.
-4. User is redirected back to the frontend, fully logged in.
-
-Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `backend/.env.local` to enable.
-
----
-
-## 🚢 Deployment
-
-The `frontend/vercel.json` configures SPA routing so React Router works on Vercel:
+### ⚙️ Vercel Routing & API Proxy Configuration
+To eliminate Cross-Origin Resource Sharing (CORS) blocks and ensure clean routing for the SPA, the Vercel routing configuration `vercel.json` is set up to rewrite `/api/*` requests directly to the backend service deployed on Render:
 
 ```json
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/:path*",
+      "destination": "https://alumniconnect-backend-u44v.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
 ```
 
-**`vercel.json` must be present in the repo** — Vercel reads it from the repository to configure routing. Without it, all routes except `/` will 404 in production.
+### Steps to Deploy
+1. **Deploy Backend**:
+   - Create a web service on [Render](https://render.com) or [Railway](https://railway.app).
+   - Set the root directory/build commands to run the Node/Express backend.
+   - Configure all environment variables (`MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`) in your deployment dashboard.
+2. **Deploy Frontend**:
+   - Connect the repository to [Vercel](https://vercel.com).
+   - The root configuration will automatically serve the frontend and proxy `/api` calls to the live backend URL.
 
-### Steps
-1. Import the repository at [vercel.com/new](https://vercel.com/new).
-2. Set **Root Directory** to `frontend/` for the frontend deployment.
-3. Add all environment variables from `backend/.env.local` in Vercel project settings.
-4. Deploy the backend separately on Railway, Render, or another Vercel project.
 
 ---
 
