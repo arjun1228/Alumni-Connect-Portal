@@ -152,89 +152,20 @@ A backend-routed AI coaching assistant powered by **Llama 3.3 70B** via Groq Clo
 
 ```
 Alumni-Interaction-Portal/
-|
-+-- backend/
-|   +-- config/
-|   |   +-- db.js                    # MongoDB Atlas connection logic
-|   +-- controllers/
-|   |   +-- admin.controller.js      # User management, analytics, moderation
-|   |   +-- auth.controller.js       # Register, login, logout, Google OAuth, JWT issuance
-|   |   +-- calendar.controller.js   # Academic calendar CRUD
-|   |   +-- directory.controller.js  # Alumni directory queries
-|   |   +-- events.controller.js     # Event creation, registration, management
-|   |   +-- jobs.controller.js       # Job postings & application handling
-|   |   +-- mentor.controller.js     # Groq AI career mentor orchestration
-|   |   +-- messages.controller.js   # Direct messaging threads & history
-|   |   +-- posts.controller.js      # Community feed posts, pins, deletion
-|   +-- middleware/
-|   |   +-- authenticate.js          # JWT verification middleware
-|   |   +-- authorize.js             # Role-based access guard
-|   |   +-- errorHandler.js          # Centralised error response handler
-|   +-- models/
-|   |   +-- AdminLog.js              # Admin action audit log
-|   |   +-- CalendarEvent.js         # Academic calendar entries
-|   |   +-- Event.js                 # Platform events & workshops
-|   |   +-- Job.js                   # Job listings
-|   |   +-- JobApplication.js        # Student job applications
-|   |   +-- Message.js               # Direct messages (with file attachment support)
-|   |   +-- Post.js                  # Community feed posts
-|   |   +-- User.js                  # Core user schema (Student / Alumni / Admin)
-|   +-- routes/
-|   |   +-- admin.routes.js
-|   |   +-- auth.routes.js           # Includes Google OAuth routes
-|   |   +-- calendar.routes.js
-|   |   +-- directory.routes.js
-|   |   +-- events.routes.js
-|   |   +-- jobs.routes.js
-|   |   +-- mentor.routes.js
-|   |   +-- messages.routes.js
-|   |   +-- posts.routes.js
-|   |   +-- upload.routes.js         # Cloudinary upload endpoint
-|   |   +-- users.routes.js
-|   +-- services/
-|   |   +-- dataStore.js             # Offline JSON flat-file DB service
-|   |   +-- groqService.js           # Groq Cloud SDK wrapper (Llama 3.3 70B)
-|   |   +-- mediaUpload.js           # Cloudinary file & image upload handler
-|   +-- utils/                       # Shared utility helpers
-|   +-- uploads/                     # Temporary local upload buffer
-|   +-- migrate.js                   # Database migration script
-|   +-- seed.js                      # Default data seeder
-|   +-- syncOfflineData.js           # Offline <-> Online data sync utility
-|   +-- server.js                    # Express app entry point & route mounting
-|   +-- .env.example                 # Environment variable template
-|   +-- .env.local                   # Local environment variables (gitignored)
-|
-+-- frontend/
-    +-- index.html                   # Vite HTML shell
-    +-- index.css                    # Global styles & Tailwind CSS v4 imports
-    +-- index.jsx                    # React bootstrapper & Axios defaults
-    +-- App.jsx                      # Root router & protected route guards
-    +-- types.js                     # Shared JS type constants
-    +-- vite.config.js               # Vite build configuration
-    +-- vercel.json                  # Vercel SPA rewrite rules
-    +-- components/
-    |   +-- LandingPage.jsx          # Public landing page with animations
-    |   +-- AuthScreen.jsx           # Login, registration & Google OAuth UI
-    |   +-- VerifyEmail.jsx          # Email verification flow
-    |   +-- Feed.jsx                 # Community feed & AI-enhanced post creation
-    |   +-- Profile.jsx              # User profile view & editor
-    |   +-- Network.jsx              # Alumni directory & connection browsing
-    |   +-- Jobs.jsx                 # Job listings & application flow
-    |   +-- Events.jsx               # Events browser & registration
-    |   +-- Messaging.jsx            # Direct messaging UI with file attachments
-    |   +-- AcademicCalendar.jsx     # Academic calendar & schedule manager
-    |   +-- AICoach.jsx              # AI Career Mentor chat interface
-    |   +-- AdminDashboard.jsx       # Admin control panel
-    |   +-- Analytics.jsx            # Platform usage analytics charts
-    |   +-- PostView.jsx             # Single post detail view (shareable URL)
-    |   +-- Logo.jsx                 # App logo component
-    |   +-- ScrollReveal.jsx         # Scroll-triggered animation wrapper
-    |   +-- SearchInput.jsx          # Reusable search input component
-    |   +-- Toast.jsx                # Global toast notification system
-    +-- services/
-    |   +-- api.js                   # Centralised Axios API client & all endpoint calls
-    +-- data/                        # Static / seed data assets
+├── backend/                  # Node.js + Express API Backend
+│   ├── config/               # DB & environment configuration
+│   ├── controllers/          # Business logic handlers for all features
+│   ├── middleware/           # JWT Authentication, RBAC, error handlers
+│   ├── models/               # MongoDB Mongoose schemas
+│   ├── routes/               # API endpoint routing declarations
+│   ├── services/             # Cloudinary, Groq AI, and offline DB services
+│   └── server.js             # Express app entry point
+└── frontend/                 # React 19 + Vite Frontend SPA
+    ├── components/           # Feature UI views and design system components
+    ├── services/api.js       # Centralized API client & HTTP endpoints
+    └── vercel.json           # Routing & rewrite proxy configuration
 ```
+
 
 ---
 
@@ -473,7 +404,7 @@ The platform stores all application data persistently in a **MongoDB** database 
 The platform is fully deployed and configured to run in production.
 
 ### 🔗 Production URLs
-- **Frontend SPA**: [https://alumni-interaction-portal.vercel.app](https://alumni-interaction-portal.vercel.app)
+- **Frontend SPA**: [https://alumni-interaction-portal-hazel.vercel.app](https://alumni-interaction-portal-hazel.vercel.app)
 - **Backend API (Render)**: [https://alumniconnect-backend-u44v.onrender.com](https://alumniconnect-backend-u44v.onrender.com)
 
 ### ⚙️ Vercel Routing & API Proxy Configuration
@@ -502,6 +433,20 @@ To eliminate Cross-Origin Resource Sharing (CORS) blocks and ensure clean routin
 2. **Deploy Frontend**:
    - Connect the repository to [Vercel](https://vercel.com).
    - The root configuration will automatically serve the frontend and proxy `/api` calls to the live backend URL.
+
+---
+
+## ☁️ Cloudinary Media Integration
+
+The application integrates with **Cloudinary** for scalable, cloud-based media and file hosting.
+- **Upload Coverage**: All user avatars, community feed images, job/resume attachments, and direct message file attachments are uploaded directly to Cloudinary via the backend `/api/upload` endpoint.
+- **Handling Middleware**: Implemented using `multer` + the Cloudinary Node SDK inside `backend/services/mediaUpload.js`.
+- **Environment Variables**: Requires the following variables in the backend settings:
+  ```env
+  CLOUDINARY_CLOUD_NAME=your_cloud_name
+  CLOUDINARY_API_KEY=your_api_key
+  CLOUDINARY_API_SECRET=your_api_secret
+  ```
 
 
 ---
