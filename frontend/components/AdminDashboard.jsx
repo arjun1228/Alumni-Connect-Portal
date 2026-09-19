@@ -301,39 +301,41 @@ export const AdminDashboard = ({ currentUser, posts, setPosts, jobs, setJobs, ev
             {/* Main Content */}
             <main className="flex-1 ml-0 md:ml-64 overflow-y-auto min-w-0 bg-slate-50 dark:bg-slate-950">
                 {/* Header */}
-                <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-6 flex justify-between items-center sticky top-0 z-10 shadow-sm theme-transition">
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setIsSidebarOpen(true)}
-                            className="md:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400 transition-colors cursor-pointer"
-                            aria-label="Open Sidebar"
-                        >
-                            <Menu className="w-6 h-6" />
-                        </button>
-                        <h1 className="text-2xl font-bold text-slate-800 dark:text-white leading-tight">
-                            {activeView === 'STUDENTS' && 'Student Directory'}
-                            {activeView === 'ALUMNI' && 'Alumni Directory'}
-                            {activeView === 'STUDENT_ACTIVITIES' && 'Student Activities'}
-                            {activeView === 'ALUMNI_ACTIVITIES' && 'Alumni Activities'}
-                            {activeView === 'FEED' && 'Community Feed'}
-                            {activeView === 'JOBS' && 'Career Opportunities'}
-                            {activeView === 'EVENTS' && 'Upcoming Events'}
-                            {activeView === 'ACTIVITY_LOG' && 'Admin Activity Log'}
-                            {activeView === 'PROFILE' && 'Administrator Profile'}
-                        </h1>
+                <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 sm:p-6 sticky top-0 z-10 shadow-sm theme-transition">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="md:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-slate-600 dark:text-slate-400 transition-colors cursor-pointer shrink-0"
+                                aria-label="Open Sidebar"
+                            >
+                                <Menu className="w-6 h-6" />
+                            </button>
+                            <h1 className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-white leading-tight truncate">
+                                {activeView === 'STUDENTS' && 'Student Directory'}
+                                {activeView === 'ALUMNI' && 'Alumni Directory'}
+                                {activeView === 'STUDENT_ACTIVITIES' && 'Student Activities'}
+                                {activeView === 'ALUMNI_ACTIVITIES' && 'Alumni Activities'}
+                                {activeView === 'FEED' && 'Community Feed'}
+                                {activeView === 'JOBS' && 'Career Opportunities'}
+                                {activeView === 'EVENTS' && 'Upcoming Events'}
+                                {activeView === 'ACTIVITY_LOG' && 'Admin Activity Log'}
+                                {activeView === 'PROFILE' && 'Administrator Profile'}
+                            </h1>
+                        </div>
+                        {['STUDENTS', 'ALUMNI', 'STUDENT_ACTIVITIES', 'ALUMNI_ACTIVITIES', 'ACTIVITY_LOG'].includes(activeView) && (
+                            <SearchInput
+                                placeholder="Search..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full sm:max-w-xs md:max-w-sm text-sm"
+                            />
+                        )}
                     </div>
-                    {['STUDENTS', 'ALUMNI', 'STUDENT_ACTIVITIES', 'ALUMNI_ACTIVITIES', 'ACTIVITY_LOG'].includes(activeView) && (
-                        <SearchInput
-                            placeholder="Search..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="max-w-37.5 sm:max-w-xs md:max-w-sm ml-auto mr-4 text-sm"
-                        />
-                    )}
                 </header>
 
                 {/* Content Area */}
-                <div className="p-8">
+                <div className="p-4 sm:p-8">
                     {isLoading ? (
                         <div className="flex justify-center items-center h-64">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>

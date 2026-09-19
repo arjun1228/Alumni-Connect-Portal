@@ -17,9 +17,19 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const mapPostFromBackend = (post) => {
     if (!post) return post;
     const authorData = post.author || {};
+
+    let imagesList = [];
+    if (Array.isArray(post.images) && post.images.length > 0) {
+        imagesList = post.images.filter(Boolean);
+    } else if (post.image) {
+        imagesList = [post.image];
+    }
+
     return {
         ...post,
         id: post.id || post._id,
+        images: imagesList,
+        image: imagesList[0] || post.image,
         author: {
             ...authorData,
             id: authorData.id || authorData._id,
@@ -99,10 +109,15 @@ export const createPost = async (postData) => {
         typeToCategory['ACHIEVEMENT'] = 'Achievement';
     }
 
+    const imagesList = Array.isArray(postData.images) && postData.images.length > 0
+        ? postData.images
+        : (postData.image ? [postData.image] : []);
+
     const payload = {
         content: postData.content,
         category: typeToCategory[postData.type] || 'General',
-        image: postData.image
+        images: imagesList,
+        image: imagesList[0] || undefined
     };
 
     const res = await fetch(`${API_URL}/posts`, {
@@ -379,6 +394,31 @@ export const uploadImage = async (file) => {
         return json.url || json.data?.url;
     } catch (error) {
         console.error('Failed to upload image:', error);
+        throw error;
+    }
+};
+
+export const uploadImages = async (files) => {
+    try {
+        const formData = new FormData();
+        const fileList = Array.from(files);
+        fileList.forEach(file => {
+            formData.append('files', file);
+        });
+
+        const res = await fetch(`${API_URL}/upload`, {
+            method: 'POST',
+            headers: { ...getAuthHeaders() },
+            body: formData
+        });
+        if (!res.ok) {
+            const errJson = await res.json().catch(() => ({}));
+            throw new Error(errJson.message || 'Multiple image upload failed');
+        }
+        const json = await res.json();
+        return json.urls || json.data?.urls || (json.url ? [json.url] : []);
+    } catch (error) {
+        console.error('Failed to upload multiple images:', error);
         throw error;
     }
 };

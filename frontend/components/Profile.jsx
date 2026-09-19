@@ -3,9 +3,9 @@ import { UserRole } from '../types';
 import { MapPin, Mail, BookOpen, Calendar, Briefcase, Award, Download, Building2, Code2, GraduationCap, Edit2, X, MessageSquare, ExternalLink, Plus, Trash2, Loader2 } from 'lucide-react';
 import { updateUser, uploadImage } from '../services/api';
 
-export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = false, isSidebar = false }) => {
+export const Profile = ({ user, onUpdateUser, onNavigate, onChat, readOnly = false, isSidebar = false, initialEditMode = false }) => {
   const isStudent = user.role === UserRole.UNDERGRADUATE || user.role === 'student' || user.role === UserRole.STUDENT;
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(initialEditMode);
 
   // Edit State
   const [editName, setEditName] = useState(user.name);

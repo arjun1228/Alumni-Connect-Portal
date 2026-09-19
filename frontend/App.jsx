@@ -11,6 +11,7 @@ import { Network } from './components/Network';
 import { AcademicCalendar } from './components/AcademicCalendar';
 import { LandingPage } from './components/LandingPage';
 import { VerifyEmail } from './components/VerifyEmail';
+import { CompleteProfileModal, isProfileComplete } from './components/CompleteProfileModal';
 
 import { Logo } from './components/Logo';
 
@@ -59,6 +60,11 @@ function App() {
   const [roleSelectCompany, setRoleSelectCompany] = useState('');
   const [roleSelectTitle, setRoleSelectTitle] = useState('');
   const [isSubmittingRole, setIsSubmittingRole] = useState(false);
+
+  // Complete Profile Login Prompt State
+  const REQUIRE_PROFILE_COMPLETION_MODAL = true;
+  const [dismissedProfilePrompt, setDismissedProfilePrompt] = useState(false);
+  const [profileEditMode, setProfileEditMode] = useState(false);
 
   // Theme State
   const [theme, setTheme] = useState(() => {
@@ -344,6 +350,7 @@ function App() {
                           user={currentUser}
                           onUpdateUser={setCurrentUser}
                           onNavigate={setCurrentView}
+                          initialEditMode={profileEditMode}
                         />
                       )}
                       {currentView === ViewState.NETWORK && (
@@ -564,6 +571,19 @@ function App() {
               </form>
             </div>
           </div>
+        )}
+
+        {/* COMPLETE YOUR PROFILE LOGIN PROMPT MODAL */}
+        {REQUIRE_PROFILE_COMPLETION_MODAL && currentUser && !currentUser.needsRoleSelection && !isProfileComplete(currentUser) && !dismissedProfilePrompt && (
+          <CompleteProfileModal
+            user={currentUser}
+            onCompleteNow={() => {
+              setProfileEditMode(true);
+              setCurrentView(ViewState.PROFILE);
+              setDismissedProfilePrompt(true);
+            }}
+            onDismiss={() => setDismissedProfilePrompt(true)}
+          />
         )}
       </> } />
     </Routes>

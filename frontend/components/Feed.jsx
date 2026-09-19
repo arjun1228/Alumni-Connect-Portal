@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Heart, Share2, Award, Briefcase, Lightbulb, Send, Image, X, Trash2, Sparkles, Loader2 } from 'lucide-react';
 import { UserRole } from '../types';
-import { createPost, likePost, uploadImage, deletePost, enhancePostText } from '../services/api';
+import { createPost, likePost, uploadImage, uploadImages, deletePost, enhancePostText } from '../services/api';
 import { useToast } from './Toast';
+import { PostImageGallery } from './PostImageGallery';
 
 export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFilter }) => {
   const toast = useToast();
@@ -13,10 +14,19 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
   const [commentText, setCommentText] = useState('');
   const [copiedPostId, setCopiedPostId] = useState(null);
   
-  // Image attachment state
-  const [postImageUrl, setPostImageUrl] = useState('');
+  // Image attachment state (array for multi-image support, max 5)
+  const [postImageUrls, setPostImageUrls] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const postTextareaRef = useRef(null);
+
+  // Auto-resize post creation textarea as content changes
+  useEffect(() => {
+    if (postTextareaRef.current) {
+      postTextareaRef.current.style.height = 'auto';
+      postTextareaRef.current.style.height = `${postTextareaRef.current.scrollHeight}px`;
+    }
+  }, [newPostContent]);
 
   // AI Enhance state
   const [isEnhancing, setIsEnhancing] = useState(false);
@@ -58,11 +68,17 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
       setEnhancedPreview(result);
     } catch (err) {
       console.error('Enhance failed:', err);
-      // Translate auth errors into a friendly message
-      const msg = err.message || '';
+      // Translate auth and raw API errors into friendly messages
+      let msg = err.message || '';
       if (msg.includes('Access Denied') || msg.includes('No token') || msg.includes('expired')) {
         setEnhanceError('Session expired — please sign out and sign in again.');
       } else {
+        if (typeof msg === 'string' && msg.includes('{')) {
+          try {
+            const parsed = JSON.parse(msg.replace(/^[0-9]{3}\s*/, ''));
+            msg = parsed.error?.message || parsed.message || msg;
+          } catch (e) {}
+        }
         setEnhanceError(msg || "Couldn't enhance right now — try again");
       }
     } finally {
@@ -94,16 +110,41 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
   };
 
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+
+    if (postImageUrls.length + fileArray.length > 5) {
+      toast('Maximum 5 images allowed per post', 'error');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const invalidType = fileArray.find(f => !f.type.startsWith('image/'));
+    if (invalidType) {
+      toast('Only image files (JPEG, PNG, GIF, WEBP) are allowed', 'error');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    const oversized = fileArray.find(f => f.size > 5 * 1024 * 1024);
+    if (oversized) {
+      toast('Each image must be under 5MB', 'error');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     setIsUploading(true);
     try {
-      const url = await uploadImage(file);
-      setPostImageUrl(url);
+      const urls = await uploadImages(fileArray);
+      setPostImageUrls(prev => [...prev, ...urls].slice(0, 5));
     } catch (err) {
-      console.error('Failed to upload image:', err);
+      console.error('Failed to upload image(s):', err);
+      toast(err.message || 'Failed to upload image(s)', 'error');
     } finally {
       setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -114,14 +155,15 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
     const postData = {
       author: currentUser,
       content: newPostContent,
-      timestamp: 'Just now', // Server should ideally handle this, but keeping frontend logic
+      timestamp: 'Just now',
       type: newPostType,
       likes: 0,
       likedBy: [],
       comments: 0,
       commentsList: [],
       tags: [],
-      image: postImageUrl || undefined
+      images: postImageUrls,
+      image: postImageUrls[0] || undefined
     };
 
     try {
@@ -129,7 +171,7 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
       setPosts([savedPost, ...posts]);
       setNewPostContent('');
       setNewPostType('GENERAL');
-      setPostImageUrl('');
+      setPostImageUrls([]);
       toast('Post published to the community! 🚀', 'success');
     } catch (error) {
       console.error("Failed to create post", error);
@@ -239,23 +281,40 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
             <div className="flex-1">
               <form onSubmit={handleCreatePost}>
                 <textarea
+                  ref={postTextareaRef}
                   value={newPostContent}
-                  onChange={(e) => setNewPostContent(e.target.value)}
+                  onChange={(e) => {
+                    setNewPostContent(e.target.value);
+                    if (postTextareaRef.current) {
+                      postTextareaRef.current.style.height = 'auto';
+                      postTextareaRef.current.style.height = `${postTextareaRef.current.scrollHeight}px`;
+                    }
+                  }}
                   placeholder="Share an update, advice, or opportunity..."
-                  className="w-full form-input-custom rounded-lg p-3 text-sm resize-none"
+                  className="w-full form-input-custom rounded-lg p-3 text-sm resize-none overflow-hidden min-h-\[80px]"
                   rows={3}
                 />
                 
                 {isUploading && (
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 animate-pulse mt-2">Uploading photo to Cloudinary...</p>
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400 animate-pulse mt-2">Uploading photo(s) to server...</p>
                 )}
 
-                {postImageUrl && (
-                  <div className="mt-2 relative h-28 max-w-xs rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800">
-                    <img src={postImageUrl} className="w-full h-full object-cover" alt="Post upload preview" />
-                    <button type="button" onClick={() => setPostImageUrl('')} className="absolute top-2 right-2 bg-slate-950/60 hover:bg-slate-950 text-white p-1 rounded-full cursor-pointer">
-                      <X className="w-4 h-4" />
-                    </button>
+                {/* Selected Pre-Submission Images Thumbnails */}
+                {postImageUrls.length > 0 && (
+                  <div className="mt-3 grid grid-cols-3 sm:grid-cols-5 gap-2">
+                    {postImageUrls.map((url, idx) => (
+                      <div key={idx} className="relative h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 group">
+                        <img src={url} className="w-full h-full object-cover" alt={`Preview ${idx + 1}`} />
+                        <button
+                          type="button"
+                          onClick={() => setPostImageUrls(prev => prev.filter((_, i) => i !== idx))}
+                          className="absolute top-1 right-1 bg-slate-950/70 hover:bg-slate-950 text-white p-1 rounded-full cursor-pointer transition-transform hover:scale-110"
+                          title="Remove image"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -293,8 +352,8 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
                   </p>
                 )}
 
-                <div className="flex justify-between items-center mt-3">
-                  <div className="flex gap-2 items-center">
+                <div className="flex flex-wrap items-center justify-between gap-3 mt-3">
+                  <div className="flex flex-wrap items-center gap-2">
                     <select
                       value={newPostType}
                       onChange={(e) => setNewPostType(e.target.value)}
@@ -308,6 +367,7 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
                     <input
                       type="file"
                       accept="image/*"
+                      multiple
                       ref={fileInputRef}
                       onChange={handleFileChange}
                       className="hidden"
@@ -316,11 +376,15 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
                     <button
                       type="button"
                       onClick={handleImageUploadClick}
-                      disabled={isUploading}
-                      className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 p-1 disabled:opacity-50 cursor-pointer"
-                      aria-label="Attach image"
+                      disabled={isUploading || postImageUrls.length >= 5}
+                      className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 p-1 disabled:opacity-50 cursor-pointer flex items-center gap-1"
+                      title={postImageUrls.length >= 5 ? "Maximum 5 images reached" : "Attach image(s)"}
+                      aria-label="Attach images"
                     >
                       <Image className="w-4 h-4" />
+                      {postImageUrls.length > 0 && (
+                        <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{postImageUrls.length}/5</span>
+                      )}
                     </button>
 
                     {/* AI Enhance button */}
@@ -413,11 +477,7 @@ export const Feed = ({ posts, setPosts, currentUser, hashtagFilter, setHashtagFi
                 {post.content}
               </div>
 
-              {post.image && (
-                <div className="mt-3 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 max-h-96">
-                  <img src={post.image} className="w-full h-full object-cover animate-kenburns" alt="Post media" />
-                </div>
-              )}
+              <PostImageGallery images={post.images} fallbackImage={post.image} />
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {(post.tags || []).map(tag => (

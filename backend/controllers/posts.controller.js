@@ -11,6 +11,7 @@ const postCreateSchema = z.object({
     category: z.enum(['Advice', 'Achievement', 'General'], {
         errorMap: () => ({ message: 'Category must be Advice, Achievement, or General' })
     }),
+    images: z.array(z.string()).max(5, 'Maximum 5 images allowed per post').optional(),
     image: z.string().optional()
 });
 
@@ -77,8 +78,22 @@ export const createPost = async (req, res, next) => {
             });
         }
 
-        const { content, category, image } = parsed.data;
+        const { content, category, images, image } = parsed.data;
         const userId = req.user.id || req.user._id;
+
+        let imagesList = [];
+        if (Array.isArray(images) && images.length > 0) {
+            imagesList = images.filter(img => typeof img === 'string' && img.trim().length > 0);
+        } else if (image && typeof image === 'string') {
+            imagesList = [image];
+        }
+
+        if (imagesList.length > 5) {
+            return res.status(400).json({
+                success: false,
+                message: 'Maximum 5 images allowed per post'
+            });
+        }
 
         const postData = {
             author: userId,
@@ -88,12 +103,10 @@ export const createPost = async (req, res, next) => {
             content,
             category,
             likes: [],
-            comments: []
+            comments: [],
+            images: imagesList,
+            image: imagesList[0] || undefined
         };
-
-        if (image) {
-            postData.image = image;
-        }
 
         const newPost = await dataStore.insert('Post', postData);
         

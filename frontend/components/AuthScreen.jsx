@@ -435,6 +435,37 @@ export const AuthScreen = ({ onLogin, onBack }) => {
                 </button>
               )}
             </div>
+            
+            {/* Role Switcher Tabs (Students vs Alumni) */}
+            {activeTab !== 'admin' && activeTab !== 'ADMIN' && (
+              <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl mb-6 border border-slate-200 dark:border-slate-700/60">
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab(UserRole.UNDERGRADUATE); setError(''); }}
+                  className={`flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    activeTab === UserRole.UNDERGRADUATE
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <GraduationCap className="w-4 h-4" />
+                  <span>Student</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setActiveTab(UserRole.GRADUATE); setError(''); }}
+                  className={`flex-1 py-2.5 px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                    activeTab === UserRole.GRADUATE
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <Briefcase className="w-4 h-4" />
+                  <span>Alumni</span>
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
                 {view === 'LOGIN'

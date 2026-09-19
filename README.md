@@ -42,8 +42,10 @@ Tailored dashboards and feature access for three distinct roles: **Students**, *
 
 ### 📢 Community Feed & Posts
 - Alumni and students can publish posts, share updates, and engage with the community feed.
-- **AI-Powered Content Enhancement** — a "Groq AI Assist" button in the post composer to refine and elevate draft content instantly.
-- Post **likes**, **comments**, and **image attachments** supported.
+- **Multi-Image Upload & Responsive Gallery Grid** — Upload up to 5 images per post with real-time multi-file preview, dynamic visual layout grids (1, 2, 3, 4+ grid layout), and interactive full-screen image lightbox preview (`PostImageGallery`).
+- **Auto-Growing Post Composer** — Smart post content field that dynamically expands in height with user input or AI generation, eliminating internal scrollbars.
+- **AI-Powered Content Enhancement** — A "Groq AI Assist" button in the post composer to refine and elevate draft content instantly.
+- Post **likes**, **comments**, and **multi-image media attachments** supported across both MongoDB Atlas and local flat-file database fallbacks.
 - Admins can **pin** important announcements and **delete** any post for moderation.
 - **Shareable single-post routing** — each post has a unique shareable URL via `PostView`.
 
@@ -64,8 +66,9 @@ Tailored dashboards and feature access for three distinct roles: **Students**, *
 - Calendar entries stored per-user in MongoDB.
 - Categorised by type: `exam`, `deadline`, `holiday`, etc.
 
-### 🤖 AI Career Mentor (Groq Llama 3.3 70B)
-A backend-routed AI coaching assistant powered by **Llama 3.3 70B** via Groq Cloud SDK, accessible from the AI Coach page:
+### 🤖 AI Career Mentor (Groq Llama 3.3 70B & Dynamic Model Fallback)
+A backend-routed AI coaching assistant powered by **Groq Cloud SDK**:
+- **Dynamic Model Discovery & Auto-Fallback** — Automatically queries available Groq catalog models (`llama-3.3-70b-versatile`, `llama-3.1-70b-versatile`, `mixtral-8x7b-32768`, etc.) with multi-tier fallback logic to guarantee high availability and zero 404 deprecation downtime.
 - **Resume Analysis** — Structured, actionable feedback on CV content and formatting.
 - **Interview Coaching** — Mock Q&A and behavioural question preparation.
 - **Skill-Gap Roadmap** — Personalised learning paths based on career goals.
@@ -77,9 +80,9 @@ A backend-routed AI coaching assistant powered by **Llama 3.3 70B** via Groq Clo
 - Initiate direct messaging with any alumni from their directory card.
 
 ### 🖼️ Cloudinary Media Storage
-- All uploaded files (profile avatars, post images, job attachments, chat files, resumes) are stored in **Cloudinary** — not on the local filesystem.
+- All uploaded files (profile avatars, multi-image post photos, job attachments, chat files, resumes) are stored in **Cloudinary** — with automatic local disk fallback.
 - Automatic URL generation for each uploaded asset.
-- Supports images, PDFs, and general documents.
+- Supports multi-image uploads, PDFs, and general documents.
 
 ### 🗄️ Offline / Hybrid Database Fallback
 - If MongoDB Atlas is unreachable or `MONGO_URI` is not configured, the server automatically switches to a local `backend/data.json` flat-file database.
@@ -94,7 +97,8 @@ A backend-routed AI coaching assistant powered by **Llama 3.3 70B** via Groq Clo
 ### 🔔 Toast Notification System
 - Global, fluent toast notifications for all key events: authentication, post interactions, job operations, calendar additions, event registrations, and messaging.
 
-### 📝 Enhanced Profiles
+### 📝 Enhanced Profiles & Complete Profile Modal
+- **Interactive Complete Profile Modal** — Prompts users on dashboard login if their profile details (skills, company, graduation year, bio) are incomplete, offering seamless one-click completion.
 - Students: detailed academic info, skills, bio, and avatar.
 - Alumni: company, job title, graduation year, mentoring domains, and bio.
 - Profile photos uploaded to Cloudinary.
@@ -151,7 +155,7 @@ A backend-routed AI coaching assistant powered by **Llama 3.3 70B** via Groq Clo
 ## 📂 Project Structure
 
 ```
-Alumni-Interaction-Portal/
+Alumni-Connect-Portal/
 ├── backend/                  # Node.js + Express API Backend
 │   ├── config/               # DB & environment configuration
 │   ├── controllers/          # Business logic handlers for all features
@@ -192,7 +196,7 @@ Alumni-Interaction-Portal/
 | :--- | :--- | :--- |
 | `author` | ObjectId | Post creator reference |
 | `content` | String | Post body text (required) |
-| `image` | String | Cloudinary URL of media attachment |
+| `images` | Array | Cloudinary URLs of media attachments (up to 5 per post) |
 | `likes` | Array | Users who liked the post |
 | `comments` | Array | Embedded comment objects |
 | `isPinned` | Boolean | Admin pin flag |
@@ -348,8 +352,8 @@ Alumni-Interaction-Portal/
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/arjun1228/Alumni-Interaction-Portal.git
-cd Alumni-Interaction-Portal
+git clone https://github.com/arjun1228/Alumni-Connect-Portal.git
+cd Alumni-Connect-Portal
 npm run install:all
 ```
 

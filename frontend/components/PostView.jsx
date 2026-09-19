@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, MessageSquare, Award, Lightbulb, ArrowLeft, Send, Sparkles } from 'lucide-react';
 import { fetchSinglePost, likePost, commentPost } from '../services/api';
+import { PostImageGallery } from './PostImageGallery';
 
 export const PostView = ({ currentUser }) => {
   const { id } = useParams();
@@ -123,11 +124,7 @@ export const PostView = ({ currentUser }) => {
               {post.content}
             </div>
 
-            {post.image && (
-              <div className="mt-4 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 max-h-96">
-                <img src={post.image} className="w-full h-full object-cover animate-kenburns" alt="Post media" />
-              </div>
-            )}
+            <PostImageGallery images={post.images} fallbackImage={post.image} />
 
             <div className="mt-4 flex flex-wrap gap-2">
               {(post.tags || []).map(tag => (

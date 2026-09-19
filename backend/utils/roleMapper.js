@@ -152,5 +152,15 @@ export const serializePayload = (data) => {
         mapped.id = mapped._id.toString();
     }
 
+    // Normalize Post images array & legacy image string
+    if (mapped.images !== undefined || mapped.image !== undefined) {
+        if (!Array.isArray(mapped.images) || mapped.images.length === 0) {
+            mapped.images = mapped.image ? [mapped.image] : [];
+        }
+        if (!mapped.image && mapped.images.length > 0) {
+            mapped.image = mapped.images[0];
+        }
+    }
+
     return mapped;
 };
